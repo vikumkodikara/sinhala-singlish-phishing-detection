@@ -1,4 +1,14 @@
-[
-  "SAFE",
-  "PHISHING"
-]
+{
+  "version": "1.0",
+  "description": "Class label mapping for the phishing detection model.",
+  "num_classes": 2,
+  "labels": [
+    "SAFE",
+    "PHISHING"
+  ],
+  "label_to_id": {
+    "SAFE": 0,
+    "PHISHING": 1
+  },
+  "_note": "This mapping must be consistent between training (Python) and inference (Android)."
+}
