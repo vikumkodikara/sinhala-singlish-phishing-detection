@@ -291,7 +291,8 @@ python -c "from ml_engine.preprocessing import clean_text; print('OK')"
 
 | Name | Role |
 |------|------|
-| Vikum Kodikara | Lead Researcher & Developer |
+| Nimantha Vikum Kodikara | Developer |
+| Ravindhu Adheedha | Developer |
 
 ---
 
