@@ -1,0 +1,10 @@
+numpy
+pandas
+tensorflow
+scikit-learn
+pytest
+black
+ruff
+mypy
+bandit
+pip-audit

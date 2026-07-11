@@ -13,3 +13,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# ML and Python
+__pycache__/
+*.py[cod]
+*.model
+*.tflite
+.env
