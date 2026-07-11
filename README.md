@@ -191,7 +191,7 @@ sinhala-singlish-phishing-detection/
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 
@@ -299,22 +299,6 @@ python -c "from ml_engine.preprocessing import clean_text; print('OK')"
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 📚 Citation
-
-If you use this work in your research, please cite:
-
-```bibtex
-@software{kodikara2026phishing,
-  author    = {Kodikara, Vikum},
-  title     = {NLP-Based Detection of Phishing in Sinhala/Singlish Mobile Messages},
-  year      = {2026},
-  publisher = {GitHub},
-  url       = {https://github.com/vikumkodikara/sinhala-singlish-phishing-detection}
-}
-```
 
 ---
 
