@@ -1,2 +1,45 @@
+# ==============================================================
+# ML Pipeline Configuration
+# ==============================================================
+# This file is loaded by ml_engine.utils.config.Config.from_yaml()
+# Override individual values via environment variables (ML_ prefix).
+# ==============================================================
+
 pipeline:
   batch_size: 32
+  learning_rate: 0.001
+  epochs: 10
+  max_sequence_length: 128
+  random_seed: 42
+  early_stopping_patience: 3
+
+data:
+  raw_dir: "dataset/raw"
+  processed_dir: "dataset/processed"
+  annotations_dir: "dataset/annotations"
+  test_size: 0.2
+  validation_size: 0.1
+
+model:
+  model_type: "bilstm"          # Options: bilstm, transformer, hybrid
+  embedding_dim: 128
+  hidden_dim: 256
+  num_layers: 2
+  dropout: 0.3
+  attention: true               # Enable attention mechanism
+
+features:
+  use_url_features: true
+  use_linguistic_features: true
+  url_feature_dim: 12
+  linguistic_feature_dim: 11
+
+export:
+  export_dir: "results/models"
+  tflite_filename: "model.tflite"
+  quantize: true
+  quantization_type: "float16"  # Options: none, float16, dynamic, full_integer
+
+logging:
+  level: "INFO"
+  log_file: "logs/training.log"

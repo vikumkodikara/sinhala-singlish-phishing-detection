@@ -1,22 +1,110 @@
+# ============================================================
+# Sinhala/Singlish Phishing Detection — .gitignore
+# ============================================================
+
+# -------------------- Android / Gradle --------------------
 *.iml
-.gradle
+.gradle/
 /local.properties
-/.idea/caches
-/.idea/libraries
+/.idea/caches/
+/.idea/libraries/
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
 local.properties
+app/build/
+*.apk
+*.aab
+*.ap_
+*.dex
 
-# ML and Python
+# -------------------- Kotlin / Java --------------------
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# -------------------- Python --------------------
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# -------------------- ML / Data Science --------------------
 *.model
-*.tflite
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+*.onnx
+*.pb
+*.pth
+*.pt
+# Note: model.tflite in assets/ is tracked as a placeholder
+# Real trained models should NOT be committed
+
+# Datasets (may contain sensitive data)
+dataset/raw/*.csv
+dataset/raw/*.json
+dataset/raw/*.jsonl
+dataset/processed/*.csv
+dataset/processed/*.json
+
+# Experiment outputs
+experiments/**/*.log
+experiments/**/*.json
+results/**/*.json
+results/**/*.csv
+results/**/*.png
+results/**/*.html
+results/models/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# -------------------- IDE --------------------
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# -------------------- Environment / Secrets --------------------
 .env
+.env.local
+.env.production
+*.pem
+*.key
+
+# -------------------- OS --------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
