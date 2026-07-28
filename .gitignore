@@ -68,13 +68,6 @@ ENV/
 # Note: model.tflite in assets/ is tracked as a placeholder
 # Real trained models should NOT be committed
 
-# Datasets (may contain sensitive data)
-dataset/raw/*.csv
-dataset/raw/*.json
-dataset/raw/*.jsonl
-dataset/processed/*.csv
-dataset/processed/*.json
-
 # Experiment outputs
 experiments/**/*.log
 experiments/**/*.json
