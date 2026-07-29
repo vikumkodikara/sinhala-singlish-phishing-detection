@@ -6,8 +6,8 @@ utilities tailored for Sinhala and Singlish (romanized Sinhala) text.
 """
 
 from ml_engine.preprocessing.clean_text import clean_text  # noqa: F401
-from ml_engine.preprocessing.normalize_sinhala import normalize_sinhala  # noqa: F401
 from ml_engine.preprocessing.normalize_singlish import normalize_singlish  # noqa: F401
+from ml_engine.preprocessing.normalize_sinhala import normalize_sinhala  # noqa: F401
 from ml_engine.preprocessing.pipeline import preprocess_message  # noqa: F401
 from ml_engine.preprocessing.remove_noise import remove_noise  # noqa: F401
 from ml_engine.preprocessing.tokenizer import SinhalaTokenizer  # noqa: F401

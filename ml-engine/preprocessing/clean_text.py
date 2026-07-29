@@ -29,7 +29,7 @@ from __future__ import annotations
 import logging
 import re
 import unicodedata
-from typing import Callable
+from collections.abc import Callable
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Individual cleaning functions
 # ---------------------------------------------------------------------------
+
 
 def remove_html_tags(text: str) -> str:
     """Strip HTML / XML tags from *text*.
@@ -82,9 +83,7 @@ def remove_zero_width_chars(text: str) -> str:
         String with zero-width joiners / non-joiners removed.
     """
     # Zero-width space, joiner, non-joiner, no-break space, etc.
-    zero_width_pattern = re.compile(
-        "[\u200b\u200c\u200d\u200e\u200f\ufeff\u00a0]"
-    )
+    zero_width_pattern = re.compile("[\u200b\u200c\u200d\u200e\u200f\ufeff\u00a0]")
     return zero_width_pattern.sub("", text)
 
 
@@ -128,6 +127,7 @@ def lowercase_latin(text: str) -> str:
 # Pipeline builder
 # ---------------------------------------------------------------------------
 
+
 def build_cleaning_pipeline(
     remove_html: bool = True,
     normalize: bool = True,
@@ -162,6 +162,7 @@ def build_cleaning_pipeline(
 # ---------------------------------------------------------------------------
 # High-level API
 # ---------------------------------------------------------------------------
+
 
 def clean_text(
     text: str,

@@ -24,7 +24,6 @@ Author:
 from __future__ import annotations
 
 import logging
-import re
 import unicodedata
 
 logger = logging.getLogger(__name__)

@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 # Nested configuration data-classes
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class PipelineConfig:
     """Hyper-parameters and runtime options for the training pipeline."""
@@ -94,7 +95,7 @@ class Config:
     # --------------------------------------------------------------------- #
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "Config":
+    def from_yaml(cls, path: str | Path) -> Config:
         """Load configuration from a YAML file.
 
         Args:

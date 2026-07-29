@@ -10,8 +10,9 @@ from __future__ import annotations
 
 import csv
 import logging
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ GOOGLE_FORM_SAFE_CATEGORIES = {
 }
 
 
-def _normalise_label_google_form(category: str) -> Optional[str]:
+def _normalise_label_google_form(category: str) -> str | None:
     """Map a survey category to SAFE/PHISHING, or None to skip."""
     category = category.strip()
     if category in GOOGLE_FORM_PHISHING_CATEGORIES:
@@ -61,9 +62,9 @@ def _normalise_label_sms_corpus(label: str, final_label: str) -> str:
     return "PHISHING" if label == "spam" else "SAFE"
 
 
-def load_google_form_records(path: Path) -> List[Dict[str, Any]]:
+def load_google_form_records(path: Path) -> list[dict[str, Any]]:
     """Load and normalise Google Form survey rows."""
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     with path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         for index, row in enumerate(reader, start=1):
@@ -96,9 +97,9 @@ def load_google_form_records(path: Path) -> List[Dict[str, Any]]:
     return records
 
 
-def load_sms_corpus_records(path: Path) -> List[Dict[str, Any]]:
+def load_sms_corpus_records(path: Path) -> list[dict[str, Any]]:
     """Load and normalise the SMS phishing benchmark corpus."""
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     with path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         for index, row in enumerate(reader, start=1):
@@ -128,7 +129,7 @@ def load_sms_corpus_records(path: Path) -> List[Dict[str, Any]]:
 def merge_datasets(
     raw_dir: str | Path = "dataset/raw",
     output_path: str | Path = "dataset/processed/final_sms_phishing_dataset.csv",
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Merge all raw sources into one normalised dataset."""
     raw_path = Path(raw_dir)
     google_form_path = raw_path / GOOGLE_FORM_FILENAME
@@ -139,7 +140,7 @@ def merge_datasets(
     if not sms_corpus_path.exists():
         raise FileNotFoundError(f"SMS corpus not found: {sms_corpus_path}")
 
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
     records.extend(load_google_form_records(google_form_path))
     records.extend(load_sms_corpus_records(sms_corpus_path))
 
@@ -151,7 +152,7 @@ def merge_datasets(
     return records
 
 
-def write_merged_csv(records: Iterable[Dict[str, Any]], path: Path) -> None:
+def write_merged_csv(records: Iterable[dict[str, Any]], path: Path) -> None:
     """Write merged records to CSV."""
     fieldnames = ["text_id", "text", "label", "source", "language", "original_label"]
     with path.open("w", encoding="utf-8", newline="") as handle:
@@ -160,10 +161,10 @@ def write_merged_csv(records: Iterable[Dict[str, Any]], path: Path) -> None:
         writer.writerows(records)
 
 
-def summarise_records(records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def summarise_records(records: list[dict[str, Any]]) -> dict[str, Any]:
     """Return basic statistics for merged records."""
-    label_counts: Dict[str, int] = {}
-    source_counts: Dict[str, int] = {}
+    label_counts: dict[str, int] = {}
+    source_counts: dict[str, int] = {}
 
     for record in records:
         label = record["label"]

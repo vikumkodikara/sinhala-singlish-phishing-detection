@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -36,23 +36,38 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 #: Sinhala urgency words (phishing signals)
-SINHALA_URGENCY_WORDS: List[str] = [
-    "හදිසි",      # urgent
-    "වහාම",       # immediately
-    "දැන්ම",      # right now
-    "අවසන්",     # last / final
-    "අනතුරු",    # danger / warning
-    "අවහිර",     # blocked
+SINHALA_URGENCY_WORDS: list[str] = [
+    "හදිසි",  # urgent
+    "වහාම",  # immediately
+    "දැන්ම",  # right now
+    "අවසන්",  # last / final
+    "අනතුරු",  # danger / warning
+    "අවහිර",  # blocked
     "අත්හිටුවා",  # suspended
-    "තහනම්",     # banned / prohibited
+    "තහනම්",  # banned / prohibited
 ]
 
 #: Singlish urgency words (phishing signals)
-SINGLISH_URGENCY_WORDS: List[str] = [
-    "urgent", "immediately", "now", "hurry", "quick",
-    "suspend", "block", "verify", "confirm", "expire",
-    "limited", "last", "final", "warning", "alert",
-    "hadisi", "wahama", "danma", "ikmanata",
+SINGLISH_URGENCY_WORDS: list[str] = [
+    "urgent",
+    "immediately",
+    "now",
+    "hurry",
+    "quick",
+    "suspend",
+    "block",
+    "verify",
+    "confirm",
+    "expire",
+    "limited",
+    "last",
+    "final",
+    "warning",
+    "alert",
+    "hadisi",
+    "wahama",
+    "danma",
+    "ikmanata",
 ]
 
 #: Sinhala Unicode block range
@@ -63,11 +78,12 @@ SINHALA_RANGE = range(0x0D80, 0x0DFF + 1)
 # Feature extraction functions
 # ---------------------------------------------------------------------------
 
+
 def count_urgency_indicators(
     text: str,
     *,
-    sinhala_words: List[str] | None = None,
-    singlish_words: List[str] | None = None,
+    sinhala_words: list[str] | None = None,
+    singlish_words: list[str] | None = None,
 ) -> int:
     """Count urgency-related words in the message.
 
@@ -98,7 +114,7 @@ def count_urgency_indicators(
     return count
 
 
-def compute_script_ratio(text: str) -> Dict[str, float]:
+def compute_script_ratio(text: str) -> dict[str, float]:
     """Compute the ratio of Sinhala vs Latin characters.
 
     Args:
@@ -180,21 +196,18 @@ def detect_monetary_references(text: str) -> bool:
     """
     # TODO: Add Sinhala-language monetary terms
     money_patterns = [
-        r"Rs\.?\s*\d+",       # Sri Lankan rupees
-        r"LKR\s*\d+",         # ISO code
-        r"\$\s*\d+",          # USD
-        r"රු\.?\s*\d+",       # Sinhala rupee symbol
-        r"ලක්ෂ",             # lakh
-        r"මිලියන",           # million
+        r"Rs\.?\s*\d+",  # Sri Lankan rupees
+        r"LKR\s*\d+",  # ISO code
+        r"\$\s*\d+",  # USD
+        r"රු\.?\s*\d+",  # Sinhala rupee symbol
+        r"ලක්ෂ",  # lakh
+        r"මිලියන",  # million
     ]
 
-    for pattern in money_patterns:
-        if re.search(pattern, text, re.IGNORECASE):
-            return True
-    return False
+    return any(re.search(pattern, text, re.IGNORECASE) for pattern in money_patterns)
 
 
-def extract_linguistic_features(text: str) -> Dict[str, Any]:
+def extract_linguistic_features(text: str) -> dict[str, Any]:
     """Extract a comprehensive set of linguistic features.
 
     This is the primary entry point for linguistic feature extraction.
@@ -226,24 +239,20 @@ def extract_linguistic_features(text: str) -> Dict[str, Any]:
 
     script = compute_script_ratio(text)
 
-    features: Dict[str, Any] = {
+    features: dict[str, Any] = {
         # Structural
         "message_length": len(text),
         "word_count": len(text.split()),
         "sentence_count": count_sentences(text),
-
         # Urgency / phishing signals
         "urgency_word_count": count_urgency_indicators(text),
         "exclamation_count": count_exclamation_marks(text),
         "capitalisation_ratio": compute_capitalisation_ratio(text),
-
         # Script analysis
         "sinhala_ratio": script["sinhala_ratio"],
         "latin_ratio": script["latin_ratio"],
-
         # Semantic signals
         "has_monetary_reference": detect_monetary_references(text),
-
         # Token presence (set by remove_noise special tokens)
         "has_url": "<URL>" in text,
         "has_phone": "<PHONE>" in text,

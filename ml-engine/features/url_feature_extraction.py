@@ -30,7 +30,7 @@ import logging
 import math
 import re
 from collections import Counter
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
@@ -40,29 +40,61 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 #: Keywords commonly found in phishing URLs
-SUSPICIOUS_KEYWORDS: List[str] = [
-    "login", "verify", "update", "secure", "account", "confirm",
-    "banking", "password", "signin", "authenticate", "suspend",
-    "urgent", "alert", "notification", "click", "free", "prize",
-    "winner", "offer", "limited", "expire",
+SUSPICIOUS_KEYWORDS: list[str] = [
+    "login",
+    "verify",
+    "update",
+    "secure",
+    "account",
+    "confirm",
+    "banking",
+    "password",
+    "signin",
+    "authenticate",
+    "suspend",
+    "urgent",
+    "alert",
+    "notification",
+    "click",
+    "free",
+    "prize",
+    "winner",
+    "offer",
+    "limited",
+    "expire",
 ]
 
 #: Known URL-shortening services
-URL_SHORTENERS: List[str] = [
-    "bit.ly", "tinyurl.com", "goo.gl", "t.co", "ow.ly",
-    "is.gd", "buff.ly", "rebrand.ly", "cutt.ly",
+URL_SHORTENERS: list[str] = [
+    "bit.ly",
+    "tinyurl.com",
+    "goo.gl",
+    "t.co",
+    "ow.ly",
+    "is.gd",
+    "buff.ly",
+    "rebrand.ly",
+    "cutt.ly",
 ]
 
 #: Common legitimate Sri Lankan banking domains (for similarity check)
-LEGITIMATE_DOMAINS: List[str] = [
-    "combank.lk", "sampath.lk", "hnb.lk", "boc.lk", "peoplesbank.lk",
-    "nsb.lk", "seylan.lk", "dfcc.lk", "ndb.lk",
+LEGITIMATE_DOMAINS: list[str] = [
+    "combank.lk",
+    "sampath.lk",
+    "hnb.lk",
+    "boc.lk",
+    "peoplesbank.lk",
+    "nsb.lk",
+    "seylan.lk",
+    "dfcc.lk",
+    "ndb.lk",
 ]
 
 
 # ---------------------------------------------------------------------------
 # Feature extraction functions
 # ---------------------------------------------------------------------------
+
 
 def compute_entropy(text: str) -> float:
     """Compute Shannon entropy of a string.
@@ -81,8 +113,7 @@ def compute_entropy(text: str) -> float:
     freq = Counter(text)
     length = len(text)
     entropy = -sum(
-        (count / length) * math.log2(count / length)
-        for count in freq.values()
+        (count / length) * math.log2(count / length) for count in freq.values()
     )
     return round(entropy, 4)
 
@@ -97,10 +128,8 @@ def is_ip_address(hostname: str) -> bool:
         ``True`` if the hostname appears to be an IPv4 or IPv6 address.
     """
     ipv4_pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
-    if ipv4_pattern.match(hostname):
-        return True
     # TODO: Add IPv6 detection
-    return False
+    return bool(ipv4_pattern.match(hostname))
 
 
 def count_suspicious_keywords(url: str) -> int:
@@ -130,7 +159,7 @@ def is_url_shortened(hostname: str) -> bool:
 
 def compute_domain_similarity(
     domain: str,
-    legitimate_domains: Optional[List[str]] = None,
+    legitimate_domains: list[str] | None = None,
 ) -> float:
     """Compute maximum similarity to known legitimate domains.
 
@@ -154,7 +183,7 @@ def compute_domain_similarity(
     return 0.0  # Placeholder
 
 
-def extract_url_features(url: str) -> Dict[str, Any]:
+def extract_url_features(url: str) -> dict[str, Any]:
     """Extract a comprehensive feature dictionary from a URL.
 
     This is the primary entry point for URL feature extraction.
@@ -189,7 +218,7 @@ def extract_url_features(url: str) -> Dict[str, Any]:
     hostname = parsed.hostname or ""
     path = parsed.path or ""
 
-    features: Dict[str, Any] = {
+    features: dict[str, Any] = {
         "url_length": len(url),
         "path_depth": len([seg for seg in path.split("/") if seg]),
         "num_subdomains": max(0, hostname.count(".") - 1) if hostname else 0,
@@ -208,7 +237,7 @@ def extract_url_features(url: str) -> Dict[str, Any]:
     return features
 
 
-def extract_urls_from_text(text: str) -> List[str]:
+def extract_urls_from_text(text: str) -> list[str]:
     """Extract all URLs from a text string.
 
     Args:

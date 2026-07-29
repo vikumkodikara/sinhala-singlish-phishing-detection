@@ -27,7 +27,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Annotation schema
 # ---------------------------------------------------------------------------
+
 
 class Annotation:
     """Represents a single annotation entry.
@@ -64,7 +65,7 @@ class Annotation:
         self.confidence = confidence
         self.notes = notes
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialise to dictionary."""
         return {
             "text_id": self.text_id,
@@ -76,7 +77,7 @@ class Annotation:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Annotation":
+    def from_dict(cls, data: dict[str, Any]) -> Annotation:
         """Deserialise from dictionary."""
         return cls(
             text_id=data["text_id"],
@@ -96,7 +97,7 @@ class AnnotationHelper:
     """
 
     def __init__(self) -> None:
-        self.annotations: List[Annotation] = []
+        self.annotations: list[Annotation] = []
         logger.info("AnnotationHelper initialised")
 
     def load_annotations(self, path: str | Path) -> None:
@@ -123,7 +124,7 @@ class AnnotationHelper:
         # TODO: Validate label values against VALID_LABELS
 
         logger.info("Loading annotations from %s", file_path)
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             raw_data = json.load(f)
 
         for entry in raw_data:
@@ -131,7 +132,7 @@ class AnnotationHelper:
 
         logger.info("Loaded %d annotations", len(self.annotations))
 
-    def compute_agreement(self) -> Dict[str, float]:
+    def compute_agreement(self) -> dict[str, float]:
         """Compute inter-annotator agreement metrics.
 
         Returns:
@@ -158,7 +159,7 @@ class AnnotationHelper:
     def resolve_conflicts(
         self,
         strategy: str = "majority",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Resolve annotation conflicts using the specified strategy.
 
         Args:

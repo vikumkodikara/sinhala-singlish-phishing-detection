@@ -28,7 +28,7 @@ import logging
 import random
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, TypedDict
+from typing import Any, TypedDict
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +36,13 @@ logger = logging.getLogger(__name__)
 class DatasetSplits(TypedDict):
     """Type definition for the split output."""
 
-    train: List[Dict[str, Any]]
-    validation: List[Dict[str, Any]]
-    test: List[Dict[str, Any]]
+    train: list[dict[str, Any]]
+    validation: list[dict[str, Any]]
+    test: list[dict[str, Any]]
 
 
 def split_dataset(
-    records: List[Dict[str, Any]],
+    records: list[dict[str, Any]],
     *,
     test_size: float = 0.2,
     val_size: float = 0.1,
@@ -98,14 +98,14 @@ def split_dataset(
     rng = random.Random(random_seed)
 
     # Group by stratum
-    strata: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    strata: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         key = record.get(stratify_key, "UNKNOWN")
         strata[key].append(record)
 
-    train: List[Dict[str, Any]] = []
-    validation: List[Dict[str, Any]] = []
-    test: List[Dict[str, Any]] = []
+    train: list[dict[str, Any]] = []
+    validation: list[dict[str, Any]] = []
+    test: list[dict[str, Any]] = []
 
     for label, group in strata.items():
         rng.shuffle(group)

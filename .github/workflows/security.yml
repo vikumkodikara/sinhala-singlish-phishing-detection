@@ -30,6 +30,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Create results directory
+        run: mkdir -p results
+
       - name: Python dependency audit
         run: pip-audit --format json --output results/pip-audit.json || true
 

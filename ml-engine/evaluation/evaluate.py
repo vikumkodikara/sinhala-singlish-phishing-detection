@@ -32,8 +32,9 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -41,18 +42,19 @@ logger = logging.getLogger(__name__)
 # Label constants
 # ---------------------------------------------------------------------------
 
-LABEL_NAMES: List[str] = ["SAFE", "PHISHING"]
+LABEL_NAMES: list[str] = ["SAFE", "PHISHING"]
 
 
 # ---------------------------------------------------------------------------
 # Metrics computation
 # ---------------------------------------------------------------------------
 
+
 def compute_confusion_matrix(
     y_true: Sequence[int],
     y_pred: Sequence[int],
     num_classes: int = 2,
-) -> List[List[int]]:
+) -> list[list[int]]:
     """Compute a confusion matrix.
 
     Args:
@@ -79,7 +81,7 @@ def compute_precision_recall_f1(
     y_true: Sequence[int],
     y_pred: Sequence[int],
     positive_label: int = 1,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compute precision, recall, and F1-score for the positive class.
 
     Args:
@@ -90,9 +92,15 @@ def compute_precision_recall_f1(
     Returns:
         Dictionary with ``precision``, ``recall``, ``f1_score``.
     """
-    tp = sum(1 for t, p in zip(y_true, y_pred) if t == positive_label and p == positive_label)
-    fp = sum(1 for t, p in zip(y_true, y_pred) if t != positive_label and p == positive_label)
-    fn = sum(1 for t, p in zip(y_true, y_pred) if t == positive_label and p != positive_label)
+    tp = sum(
+        1 for t, p in zip(y_true, y_pred) if t == positive_label and p == positive_label
+    )
+    fp = sum(
+        1 for t, p in zip(y_true, y_pred) if t != positive_label and p == positive_label
+    )
+    fn = sum(
+        1 for t, p in zip(y_true, y_pred) if t == positive_label and p != positive_label
+    )
 
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
@@ -132,6 +140,7 @@ def compute_accuracy(
 # Evaluator class
 # ---------------------------------------------------------------------------
 
+
 class ModelEvaluator:
     """Evaluates a trained phishing-detection model.
 
@@ -150,9 +159,9 @@ class ModelEvaluator:
 
     def evaluate(
         self,
-        test_data: Sequence[Dict[str, Any]],
+        test_data: Sequence[dict[str, Any]],
         label_key: str = "label",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run evaluation on the test dataset.
 
         Args:
@@ -174,8 +183,8 @@ class ModelEvaluator:
         # TODO: Compute all metrics
 
         # Placeholder: simulate evaluation
-        y_true: List[int] = []
-        y_pred: List[int] = []
+        y_true: list[int] = []
+        y_pred: list[int] = []
 
         for record in test_data:
             label = record.get(label_key, "SAFE")
@@ -201,12 +210,14 @@ class ModelEvaluator:
             "pr_auc": 0.0,
         }
 
-        logger.info("Evaluation complete: accuracy=%.4f, F1=%.4f", accuracy, prf["f1_score"])
+        logger.info(
+            "Evaluation complete: accuracy=%.4f, F1=%.4f", accuracy, prf["f1_score"]
+        )
         return report
 
     def save_report(
         self,
-        report: Dict[str, Any],
+        report: dict[str, Any],
         output_dir: str | Path = "results/evaluation",
     ) -> None:
         """Save the evaluation report to disk.
@@ -229,7 +240,7 @@ class ModelEvaluator:
         # TODO: Generate per-class performance table
 
     @staticmethod
-    def _empty_report() -> Dict[str, Any]:
+    def _empty_report() -> dict[str, Any]:
         """Return a report with zero metrics."""
         return {
             "num_samples": 0,

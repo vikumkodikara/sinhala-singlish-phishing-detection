@@ -32,7 +32,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class TFLiteExporter:
         self,
         output_path: str | Path = "app/src/main/assets/model.tflite",
         quantization: str = "float16",
-        representative_dataset: Optional[List[Any]] = None,
+        representative_dataset: list[Any] | None = None,
     ) -> Path:
         """Convert and export the model to TFLite format.
 
@@ -140,7 +140,7 @@ class TFLiteExporter:
     def export_metadata(
         self,
         output_path: str | Path = "app/src/main/assets",
-        labels: Optional[List[str]] = None,
+        labels: list[str] | None = None,
     ) -> None:
         """Export model metadata files alongside the TFLite model.
 
@@ -168,7 +168,7 @@ class TFLiteExporter:
         # TODO: Export tokeniser vocabulary
         # TODO: Export model metadata (input shape, version, etc.)
 
-    def validate_export(self, tflite_path: str | Path) -> Dict[str, Any]:
+    def validate_export(self, tflite_path: str | Path) -> dict[str, Any]:
         """Validate the exported TFLite model.
 
         Runs basic checks:
@@ -184,7 +184,7 @@ class TFLiteExporter:
         """
         path = Path(tflite_path)
 
-        report: Dict[str, Any] = {
+        report: dict[str, Any] = {
             "file_exists": path.exists(),
             "file_size_bytes": path.stat().st_size if path.exists() else 0,
             "is_loadable": False,

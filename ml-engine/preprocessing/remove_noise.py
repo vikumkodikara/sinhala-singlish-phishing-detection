@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Set
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +40,7 @@ URL_PATTERN: re.Pattern[str] = re.compile(
 )
 
 #: Matches Sri Lankan phone numbers (local and international formats)
-SL_PHONE_PATTERN: re.Pattern[str] = re.compile(
-    r"(?:\+94|0094|0)\d{9,10}"
-)
+SL_PHONE_PATTERN: re.Pattern[str] = re.compile(r"(?:\+94|0094|0)\d{9,10}")
 
 #: Matches emoji Unicode ranges (supplementary multilingual plane)
 EMOJI_PATTERN: re.Pattern[str] = re.compile(
@@ -72,6 +69,7 @@ NUMBER_TOKEN: str = "<NUM>"
 # ---------------------------------------------------------------------------
 # Noise-removal functions
 # ---------------------------------------------------------------------------
+
 
 def replace_urls(text: str, replacement: str = URL_TOKEN) -> str:
     """Replace URLs with a placeholder token.
@@ -152,7 +150,7 @@ def remove_text_emoticons(text: str) -> str:
 
 def remove_special_characters(
     text: str,
-    keep_chars: Set[str] | None = None,
+    keep_chars: set[str] | None = None,
 ) -> str:
     """Remove special characters, keeping alphanumerics and specified chars.
 
@@ -184,6 +182,7 @@ def remove_special_characters(
 # ---------------------------------------------------------------------------
 # High-level API
 # ---------------------------------------------------------------------------
+
 
 def remove_noise(
     text: str,

@@ -25,10 +25,9 @@ Author:
 
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +35,9 @@ logger = logging.getLogger(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 
-REQUIRED_COLUMNS: List[str] = ["text", "label"]
-SUPPORTED_EXTENSIONS: List[str] = [".csv", ".json", ".jsonl"]
-VALID_LABELS: List[str] = ["SAFE", "PHISHING"]
+REQUIRED_COLUMNS: list[str] = ["text", "label"]
+SUPPORTED_EXTENSIONS: list[str] = [".csv", ".json", ".jsonl"]
+VALID_LABELS: list[str] = ["SAFE", "PHISHING"]
 
 
 class DatasetLoader:
@@ -64,7 +63,7 @@ class DatasetLoader:
         self.encoding = encoding
         logger.info("DatasetLoader initialised (data_dir=%s)", self.data_dir)
 
-    def load(self, filename: Optional[str] = None) -> List[Dict[str, Any]]:
+    def load(self, filename: str | None = None) -> list[dict[str, Any]]:
         """Load the dataset from disk.
 
         Args:
@@ -89,7 +88,7 @@ class DatasetLoader:
 
         logger.info("Loading dataset from %s", self.data_dir)
 
-        records: List[Dict[str, Any]] = []
+        records: list[dict[str, Any]] = []
 
         if filename:
             file_path = self.data_dir / filename
@@ -103,7 +102,7 @@ class DatasetLoader:
         self._validate_schema(records)
         return records
 
-    def _load_file(self, path: Path) -> List[Dict[str, Any]]:
+    def _load_file(self, path: Path) -> list[dict[str, Any]]:
         """Load records from a single file.
 
         Args:
@@ -129,7 +128,7 @@ class DatasetLoader:
         # Placeholder: return empty list
         return []
 
-    def _validate_schema(self, records: List[Dict[str, Any]]) -> None:
+    def _validate_schema(self, records: list[dict[str, Any]]) -> None:
         """Validate that all records contain the required columns.
 
         Args:
@@ -141,11 +140,9 @@ class DatasetLoader:
         for i, record in enumerate(records):
             missing = [col for col in REQUIRED_COLUMNS if col not in record]
             if missing:
-                raise ValueError(
-                    f"Record {i} is missing required columns: {missing}"
-                )
+                raise ValueError(f"Record {i} is missing required columns: {missing}")
 
-    def get_statistics(self, records: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def get_statistics(self, records: list[dict[str, Any]]) -> dict[str, Any]:
         """Compute basic dataset statistics.
 
         Args:
@@ -162,8 +159,8 @@ class DatasetLoader:
         # TODO: Compute label distribution
         # TODO: Compute language distribution (Sinhala vs Singlish)
 
-        label_counts: Dict[str, int] = {}
-        text_lengths: List[int] = []
+        label_counts: dict[str, int] = {}
+        text_lengths: list[int] = []
 
         for record in records:
             label = record.get("label", "UNKNOWN")
@@ -173,7 +170,9 @@ class DatasetLoader:
         stats = {
             "total": len(records),
             "label_distribution": label_counts,
-            "avg_text_length": sum(text_lengths) / len(text_lengths) if text_lengths else 0,
+            "avg_text_length": (
+                sum(text_lengths) / len(text_lengths) if text_lengths else 0
+            ),
             "min_text_length": min(text_lengths) if text_lengths else 0,
             "max_text_length": max(text_lengths) if text_lengths else 0,
         }

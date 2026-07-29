@@ -30,8 +30,8 @@ import json
 import logging
 import re
 from collections import Counter
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ URL_TOKEN: str = "<URL>"
 PHONE_TOKEN: str = "<PHONE>"
 NUM_TOKEN: str = "<NUM>"
 
-SPECIAL_TOKENS: List[str] = [
+SPECIAL_TOKENS: list[str] = [
     PAD_TOKEN,
     UNK_TOKEN,
     BOS_TOKEN,
@@ -88,8 +88,8 @@ class SinhalaTokenizer:
         self.max_sequence_length = max_sequence_length
 
         # Vocabulary mappings — populated by fit()
-        self.token_to_id: Dict[str, int] = {}
-        self.id_to_token: Dict[int, str] = {}
+        self.token_to_id: dict[str, int] = {}
+        self.id_to_token: dict[int, str] = {}
 
         # Initialise with special tokens
         for idx, token in enumerate(SPECIAL_TOKENS):
@@ -106,7 +106,7 @@ class SinhalaTokenizer:
     # Core tokenisation
     # ------------------------------------------------------------------ #
 
-    def tokenize(self, text: str) -> List[str]:
+    def tokenize(self, text: str) -> list[str]:
         """Split *text* into a list of tokens.
 
         Uses whitespace splitting as the primary strategy, with
@@ -132,7 +132,7 @@ class SinhalaTokenizer:
         special_pattern = "|".join(re.escape(t) for t in SPECIAL_TOKENS)
         parts = re.split(f"({special_pattern})", text)
 
-        tokens: List[str] = []
+        tokens: list[str] = []
         for part in parts:
             part = part.strip()
             if not part:
@@ -149,7 +149,7 @@ class SinhalaTokenizer:
     # Vocabulary building
     # ------------------------------------------------------------------ #
 
-    def fit(self, corpus: Sequence[str]) -> "SinhalaTokenizer":
+    def fit(self, corpus: Sequence[str]) -> SinhalaTokenizer:
         """Build vocabulary from a corpus of texts.
 
         Args:
@@ -199,7 +199,7 @@ class SinhalaTokenizer:
         text: str,
         max_length: int | None = None,
         add_special_tokens: bool = True,
-    ) -> List[int]:
+    ) -> list[int]:
         """Convert *text* to a list of integer token IDs.
 
         Args:
@@ -234,7 +234,7 @@ class SinhalaTokenizer:
 
         return ids
 
-    def decode(self, ids: List[int], skip_special: bool = True) -> str:
+    def decode(self, ids: list[int], skip_special: bool = True) -> str:
         """Convert a list of token IDs back to a string.
 
         Args:
@@ -281,10 +281,12 @@ class SinhalaTokenizer:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-        logger.info("Tokenizer saved to %s (%d tokens)", output_path, len(self.token_to_id))
+        logger.info(
+            "Tokenizer saved to %s (%d tokens)", output_path, len(self.token_to_id)
+        )
 
     @classmethod
-    def load(cls, path: str | Path) -> "SinhalaTokenizer":
+    def load(cls, path: str | Path) -> SinhalaTokenizer:
         """Load a tokeniser from a previously saved JSON file.
 
         Args:
@@ -300,7 +302,7 @@ class SinhalaTokenizer:
         if not input_path.exists():
             raise FileNotFoundError(f"Tokenizer file not found: {input_path}")
 
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             data = json.load(f)
 
         tokenizer = cls(
@@ -311,7 +313,11 @@ class SinhalaTokenizer:
         tokenizer.token_to_id = data["vocabulary"]
         tokenizer.id_to_token = {int(v): k for k, v in data["vocabulary"].items()}
 
-        logger.info("Tokenizer loaded from %s (%d tokens)", input_path, len(tokenizer.token_to_id))
+        logger.info(
+            "Tokenizer loaded from %s (%d tokens)",
+            input_path,
+            len(tokenizer.token_to_id),
+        )
         return tokenizer
 
     # ------------------------------------------------------------------ #

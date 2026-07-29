@@ -33,7 +33,7 @@ import argparse
 import logging
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ml_engine.utils.config import Config
 from ml_engine.utils.logger import setup_logger
@@ -57,9 +57,9 @@ class TrainingPipeline:
             config_path: Path to the YAML configuration file.
         """
         self.config_path = Path(config_path)
-        self.config: Optional[Config] = None
+        self.config: Config | None = None
         self.model: Any = None  # Will be a BaseModel subclass
-        self.metrics_history: List[Dict[str, Any]] = []
+        self.metrics_history: list[dict[str, Any]] = []
 
         logger.info("TrainingPipeline initialised (config=%s)", self.config_path)
 
@@ -78,7 +78,7 @@ class TrainingPipeline:
         self.config = Config()
         return self.config
 
-    def load_data(self) -> Dict[str, List[Dict[str, Any]]]:
+    def load_data(self) -> dict[str, list[dict[str, Any]]]:
         """Stage 2: Load and preprocess the dataset.
 
         Returns:
@@ -92,9 +92,7 @@ class TrainingPipeline:
 
         return {"train": [], "validation": [], "test": []}
 
-    def build_features(
-        self, data: Dict[str, List[Dict[str, Any]]]
-    ) -> Dict[str, Any]:
+    def build_features(self, data: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
         """Stage 3: Extract and combine features.
 
         Args:
@@ -123,7 +121,7 @@ class TrainingPipeline:
         self,
         train_features: Any,
         val_features: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Stage 5: Train the model.
 
         Args:
@@ -175,7 +173,7 @@ class TrainingPipeline:
     # Orchestrator
     # ------------------------------------------------------------------ #
 
-    def run(self) -> Dict[str, Any]:
+    def run(self) -> dict[str, Any]:
         """Execute the full training pipeline.
 
         Returns:
@@ -222,6 +220,7 @@ class TrainingPipeline:
 # ---------------------------------------------------------------------------
 # CLI entry point
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     """Command-line entry point for the training pipeline."""

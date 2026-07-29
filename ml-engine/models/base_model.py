@@ -29,8 +29,9 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class BaseModel(ABC):
         self,
         model_name: str = "base_model",
         model_version: str = "0.1.0",
-        config: Optional[Dict[str, Any]] = None,
+        config: dict[str, Any] | None = None,
     ) -> None:
         """Initialise the base model.
 
@@ -89,10 +90,10 @@ class BaseModel(ABC):
     @abstractmethod
     def train(
         self,
-        train_data: Sequence[Dict[str, Any]],
-        val_data: Optional[Sequence[Dict[str, Any]]] = None,
+        train_data: Sequence[dict[str, Any]],
+        val_data: Sequence[dict[str, Any]] | None = None,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Train the model on the provided data.
 
         Args:
@@ -107,7 +108,7 @@ class BaseModel(ABC):
         ...
 
     @abstractmethod
-    def predict(self, texts: Sequence[str]) -> List[Dict[str, Any]]:
+    def predict(self, texts: Sequence[str]) -> list[dict[str, Any]]:
         """Run inference on a batch of texts.
 
         Args:

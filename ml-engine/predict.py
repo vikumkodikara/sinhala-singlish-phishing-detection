@@ -24,13 +24,13 @@ from __future__ import annotations
 
 import argparse
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 from ml_engine.preprocessing.clean_text import clean_text
-from ml_engine.preprocessing.normalize_sinhala import normalize_sinhala
 from ml_engine.preprocessing.normalize_singlish import normalize_singlish
+from ml_engine.preprocessing.normalize_sinhala import normalize_sinhala
 from ml_engine.preprocessing.remove_noise import remove_noise
 from ml_engine.utils.logger import setup_logger
 
@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Result data class
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class PredictionResult:
@@ -78,6 +79,7 @@ class PredictionResult:
 # ---------------------------------------------------------------------------
 # Detector
 # ---------------------------------------------------------------------------
+
 
 class PhishingDetector:
     """High-level phishing detection interface.
@@ -184,7 +186,7 @@ class PhishingDetector:
     def predict_batch(
         self,
         texts: Sequence[str],
-    ) -> List[PredictionResult]:
+    ) -> list[PredictionResult]:
         """Run phishing detection on a batch of messages.
 
         Args:
@@ -200,6 +202,7 @@ class PhishingDetector:
 # ---------------------------------------------------------------------------
 # CLI entry point
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     """Command-line entry point for single-message prediction."""

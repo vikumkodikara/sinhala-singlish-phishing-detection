@@ -29,7 +29,6 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 #: Common Singlish multi-character sequences → canonical forms.
 #: Ordered longest-first to ensure greedy matching.
-CONSONANT_MAP: Dict[str, str] = {
+CONSONANT_MAP: dict[str, str] = {
     # TODO: Populate with comprehensive phonetic mappings from research
     # These are illustrative examples — actual mappings require linguistic
     # analysis of the target corpus.
@@ -58,7 +57,7 @@ CONSONANT_MAP: Dict[str, str] = {
 }
 
 #: Long-vowel representations → canonical form
-LONG_VOWEL_MAP: Dict[str, str] = {
+LONG_VOWEL_MAP: dict[str, str] = {
     "aa": "aa",
     "ee": "ee",
     "ii": "ii",
@@ -137,7 +136,7 @@ def normalize_long_vowels(text: str) -> str:
     return text
 
 
-def detect_code_switching(text: str) -> List[Tuple[str, str]]:
+def detect_code_switching(text: str) -> list[tuple[str, str]]:
     """Identify code-switched segments between Singlish and English.
 
     Args:
