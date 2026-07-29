@@ -1,41 +1,23 @@
 # ============================================================
 # Sinhala/Singlish Phishing Detection — .gitignore
 # ============================================================
+# Goal: ignore local/build/generated noise; keep submission assets
+# (source, docs, datasets, notebooks, configs, CI, tests).
+# ============================================================
 
 # -------------------- Android / Gradle --------------------
 *.iml
 .gradle/
-/local.properties
-/.idea/caches/
-/.idea/libraries/
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+local.properties
 /build/
 /captures/
 .externalNativeBuild/
 .cxx/
-local.properties
 app/build/
 *.apk
 *.aab
 *.ap_
 *.dex
-
-# -------------------- Kotlin / Java --------------------
-*.class
-*.log
-*.ctxt
-.mtj.tmp/
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
 
 # -------------------- Python --------------------
 __pycache__/
@@ -48,6 +30,15 @@ dist/
 build/
 .eggs/
 *.whl
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+pytest-cache-files-*/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
 
 # Virtual environments
 venv/
@@ -55,7 +46,7 @@ venv/
 env/
 ENV/
 
-# -------------------- ML / Data Science --------------------
+# -------------------- ML artifacts (generated) --------------------
 *.model
 *.h5
 *.hdf5
@@ -65,22 +56,25 @@ ENV/
 *.pb
 *.pth
 *.pt
-# Note: model.tflite in assets/ is tracked as a placeholder
-# Real trained models should NOT be committed
+*.tflite
+# Keep Android placeholder model for Milestone 2 structure
+!app/src/main/assets/model.tflite
 
-# Experiment outputs
-experiments/**/*.log
-experiments/**/*.json
-results/**/*.json
-results/**/*.csv
-results/**/*.png
-results/**/*.html
-results/models/
+# -------------------- Logs & runtime output --------------------
+logs/
+*.log
 
-# Jupyter Notebooks checkpoints
+# Experiment / evaluation outputs (keep folder placeholders)
+experiments/*
+!experiments/.gitkeep
+results/*
+!results/.gitkeep
+
+# -------------------- Jupyter (keep notebooks, ignore checkpoints) --------------------
 .ipynb_checkpoints/
 
-# -------------------- IDE --------------------
+# -------------------- IDE / editor --------------------
+.idea/
 .vscode/
 *.swp
 *.swo
@@ -88,8 +82,9 @@ results/models/
 .project
 .classpath
 .settings/
+.cursor/
 
-# -------------------- Environment / Secrets --------------------
+# -------------------- Environment / secrets --------------------
 .env
 .env.local
 .env.production
@@ -101,3 +96,16 @@ results/models/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# -------------------- Archives (optional local downloads) --------------------
+*.zip
+*.tar.gz
+*.rar
+
+# ============================================================
+# Explicitly KEPT for submission (do not add ignore rules for):
+#   - dataset/raw/*.csv, dataset/processed/*.csv
+#   - notebooks/*.ipynb
+#   - ml-engine/, scripts/, tests/, docs/, configs/
+#   - app/src/main/assets/ (model.tflite, tokenizer.json, labels.json)
+# ============================================================

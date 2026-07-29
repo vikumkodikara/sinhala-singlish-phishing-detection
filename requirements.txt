@@ -16,6 +16,7 @@ tensorflow>=2.14.0,<3.0.0
 # ---- Data Processing ----
 PyYAML>=6.0
 python-dotenv>=1.0.0
+matplotlib>=3.8.0
 
 # ---- Code Quality ----
 black>=24.0.0
