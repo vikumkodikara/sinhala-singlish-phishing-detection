@@ -47,3 +47,17 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.setuptools]
+package-dir = { "ml_engine" = "ml-engine" }
+packages = [
+    "ml_engine",
+    "ml_engine.preprocessing",
+    "ml_engine.dataset",
+    "ml_engine.features",
+    "ml_engine.models",
+    "ml_engine.training",
+    "ml_engine.evaluation",
+    "ml_engine.export",
+    "ml_engine.utils",
+]

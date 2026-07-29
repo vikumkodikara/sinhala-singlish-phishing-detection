@@ -138,7 +138,7 @@ sinhala-singlish-phishing-detection/
 │       │   ├── di/               # Dependency injection (Hilt)
 │       │   ├── ml/               # TFLite inference (ModelLoader, Predictor)
 │       │   └── utils/            # Shared utilities
-│       └── assets/               # Model + tokenizer placeholders
+│       └── assets/               # TFLite model + tokenizer config
 ├── ml-engine/                    # ML pipeline (Python)
 │   ├── preprocessing/            # Text cleaning, normalisation, tokenisation
 │   ├── dataset/                  # Data loading, splitting, annotation
@@ -148,12 +148,16 @@ sinhala-singlish-phishing-detection/
 │   ├── evaluation/               # Metrics and reporting
 │   ├── export/                   # TFLite export
 │   └── utils/                    # Logging, configuration
-├── dataset/                      # Raw and processed data (git-ignored)
+├── dataset/                      # Raw and processed SMS data
+│   ├── raw/                      # google_form_sms_dataset.csv, sms_phishing_dataset_v1.csv
+│   ├── processed/                # final_sms_phishing_dataset.csv (generated)
+│   └── README.md                 # Dataset documentation
 ├── docs/                         # Research documentation
 ├── configs/                      # Pipeline configuration (YAML)
+├── scripts/                      # merge_datasets.py, preprocess_sample.py
+├── notebooks/                    # data_exploration.ipynb
 ├── tests/                        # Unit tests (Python + Android)
 ├── .github/                      # CI/CD workflows + templates
-├── scripts/                      # Utility scripts
 ├── experiments/                  # Experiment tracking
 └── results/                      # Model outputs and reports
 ```
@@ -221,12 +225,34 @@ python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 
-# Install dependencies
+# Install dependencies and the ML engine package
 pip install -r requirements.txt
+pip install -e .
+
+# Merge raw datasets into a unified processed file
+python scripts/merge_datasets.py
+
+# Preview preprocessing on sample messages
+python scripts/preprocess_sample.py --limit 5
+
+# Explore dataset in Jupyter
+jupyter notebook notebooks/data_exploration.ipynb
 
 # Verify installation
-python -c "from ml_engine.preprocessing import clean_text; print('OK')"
+python -c "from ml_engine.preprocessing import preprocess_message; print('OK')"
 ```
+
+### Dataset
+
+Raw data lives in `dataset/raw/`:
+
+| File | Description |
+|------|-------------|
+| `google_form_sms_dataset.csv` | Consented Sri Lankan SMS survey responses |
+| `sms_phishing_dataset_v1.csv` | Public SMS spam/phishing corpus (5,174 messages) |
+
+Run `python scripts/merge_datasets.py` to produce `dataset/processed/final_sms_phishing_dataset.csv`.
+See `dataset/README.md` for schema, ethics, and label mapping details.
 
 ---
 
@@ -236,7 +262,7 @@ python -c "from ml_engine.preprocessing import clean_text; print('OK')"
 |------|-----------|--------|
 | 1 | Repository setup, project architecture | ✅ Complete |
 | 2 | Dataset collection and annotation guidelines | 🔄 In Progress |
-| 3 | Preprocessing pipeline implementation | ⏳ Upcoming |
+| 3 | Preprocessing pipeline implementation | 🔄 In Progress |
 | 4 | Baseline models (Naive Bayes, SVM) | ⏳ Upcoming |
 | 5 | Hybrid deep learning model (BiLSTM + features) | ⏳ Upcoming |
 | 6 | Evaluation and ablation studies | ⏳ Upcoming |
@@ -252,7 +278,10 @@ python -c "from ml_engine.preprocessing import clean_text; print('OK')"
 - [x] Public GitHub repository
 - [x] Initial project structure
 - [x] README.md
-- [x] Data preprocessing scripts (placeholders)
+- [x] Data preprocessing scripts (`ml-engine/preprocessing/`)
+- [x] Dataset merge and preprocess utility scripts (`scripts/`)
+- [x] Raw datasets in `dataset/raw/`
+- [x] `dataset/README.md`
 - [x] requirements.txt
 - [x] Initial documentation
 - [x] CI/CD pipeline
@@ -260,8 +289,9 @@ python -c "from ml_engine.preprocessing import clean_text; print('OK')"
 
 ### Milestone 3 — Model Training & Evaluation *(Upcoming)*
 
-- [ ] Dataset collection and labelling
-- [ ] Preprocessing pipeline implementation
+- [x] Initial dataset collection (survey + SMS corpus)
+- [ ] Full Sinhala/Singlish corpus labelling
+- [ ] Preprocessing pipeline completion
 - [ ] Feature engineering
 - [ ] Baseline model training
 - [ ] Hybrid model development
