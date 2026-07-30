@@ -41,12 +41,12 @@ The project delivers:
 
 ### Key Features
 
-- 🌐 **Multilingual Support**: Handles native Sinhala Unicode, Singlish (Latin script), and code-switched messages
-- 📱 **Offline Detection**: On-device TFLite inference — no internet required
-- ⚡ **Real-Time Analysis**: Sub-50ms inference on modern Android devices
-- 📊 **Risk Scoring**: Granular risk assessment with confidence scores
-- 📜 **Detection History**: Persistent local history with filtering and export
-- 🔒 **Privacy-First**: All processing happens on-device; no data leaves the phone
+- **Multilingual Support**: Handles native Sinhala Unicode, Singlish (Latin script), and code-switched messages
+- **Offline Detection**: On-device TFLite inference — no internet required
+- **Real-Time Analysis**: Sub-50ms inference on modern Android devices
+- **Risk Scoring**: Granular risk assessment with confidence scores
+- **Detection History**: Persistent local history with filtering and export
+- **Privacy-First**: All processing happens on-device; no data leaves the phone
 
 ---
 
