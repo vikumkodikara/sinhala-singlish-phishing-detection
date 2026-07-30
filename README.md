@@ -95,33 +95,82 @@ Existing phishing detection systems are overwhelmingly designed for English text
 
 ## 🏗️ System Architecture
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                   Android Application                     │
-│  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌───────────┐ │
-│  │   UI    │→ │ ViewModel│→ │Use Cases│→ │Repository │ │
-│  │(Compose)│  │  (MVVM)  │  │ (Domain)│  │  (Data)   │ │
-│  └─────────┘  └──────────┘  └─────────┘  └─────┬─────┘ │
-│                                                  │       │
-│  ┌──────────────────┐  ┌─────────────────────────┤       │
-│  │  Room Database   │  │  TFLite Inference Engine │       │
-│  │   (History)      │  │  ┌──────────┐ ┌────────┐│       │
-│  └──────────────────┘  │  │Tokenizer │ │Predictor││       │
-│                         │  └──────────┘ └────────┘│       │
-│                         └─────────────────────────┘       │
-└──────────────────────────────────────────────────────────┘
+The system follows a **7-stage pipeline** from data collection through to on-device Android deployment:
 
-┌──────────────────────────────────────────────────────────┐
-│                      ML Engine                            │
-│  ┌────────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐│
-│  │Preprocessing│→│ Features │→ │ Training │→ │ Export ││
-│  │            │  │          │  │          │  │(TFLite)││
-│  └────────────┘  └──────────┘  └──────────┘  └────────┘│
-│  ┌────────────┐  ┌──────────┐  ┌──────────┐            │
-│  │  Dataset   │  │  Models  │  │Evaluation│            │
-│  └────────────┘  └──────────┘  └──────────┘            │
-└──────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph S1["1. DATA SOURCES"]
+        DS1["Primary Dataset\nSri Lankan SMS Survey\nSinhala, Singlish, Mixed"]
+        DS2["Supplementary Dataset\nEnglish SMS 5,171"]
+    end
+
+    subgraph S2["2. PREPROCESSING"]
+        P1["Dataset Filtering & Anonymization"]
+        P2["Text Cleaning & Unicode NFC Normalization"]
+        P3["Sinhala & Singlish Normalization"]
+        P4["URL and Special Token Handling"]
+        P1 --> P2 --> P3 --> P4
+    end
+
+    subgraph S3["3. FEATURE PROCESSING"]
+        subgraph TB["TEXT BRANCH"]
+            T1["Tokenization"]
+            T2["Sequence Encoding"]
+            T3["Embedding Layer"]
+            T4["BiLSTM"]
+            T5["Sequence Encoding"]
+            T6["Attention Mechanism"]
+            T1 --> T2 --> T3 --> T4 --> T5 --> T6
+        end
+        subgraph FB["FEATURE BRANCH"]
+            F1["URL Features"]
+            F2["Linguistic Features"]
+            F3["Message-Level Features"]
+            F1 --> F2 --> F3
+        end
+    end
+
+    subgraph S5["5. HYBRID CLASSIFICATION"]
+        H1["Feature Fusion"]
+        H2["Dense Layer + Dropout"]
+        H3["Sigmoid Binary Classifier"]
+        H1 --> H2 --> H3
+    end
+
+    subgraph S6["6. OUTPUT INTERPRETATION"]
+        O1["Prediction: SAFE or PHISHING"]
+        O2["Phishing Risk Score"]
+        O3["Explainable Result\nImportant Indicators"]
+        O1 --> O2 --> O3
+    end
+
+    subgraph S7["7. ANDROID DEPLOYMENT"]
+        A1["Optimized TensorFlow Lite Model"]
+        A2["Offline On-Device Inference"]
+        A3["Android Application\nRisk Score, Explanation, History"]
+        A1 --> A2 --> A3
+    end
+
+    DS1 --> P1
+    DS2 --> P1
+    P4 --> T1
+    P4 --> F1
+    T6 --> H1
+    F3 --> H1
+    H3 --> O1
+    O3 --> A1
 ```
+
+### Pipeline Stages
+
+| Stage | Description | Implementation |
+|-------|-------------|----------------|
+| **1. Data Sources** | Primary Sri Lankan SMS survey (Sinhala, Singlish, mixed) + supplementary English SMS corpus (5,171 messages) | `dataset/raw/` |
+| **2. Preprocessing** | Filtering, anonymization, Unicode NFC normalization, script-specific normalization, URL/special token replacement | `ml-engine/preprocessing/` |
+| **3. Feature Processing** | **Text Branch**: Tokenization → Embedding → BiLSTM → Attention. **Feature Branch**: URL features (12-dim) + linguistic features (11-dim) + message-level features | `ml-engine/preprocessing/tokenizer.py`, `ml-engine/features/` |
+| **5. Hybrid Classification** | Feature fusion of both branches → Dense + Dropout → Sigmoid binary classifier | `ml-engine/models/` |
+| **6. Output Interpretation** | Binary prediction (SAFE/PHISHING), phishing risk score (0.0–1.0), explainable result with important indicators | `ml-engine/predict.py`, `ml-engine/evaluation/` |
+| **7. Android Deployment** | Optimized TFLite model, offline on-device inference, Android app with risk score, explanation, and history | `ml-engine/export/`, `app/` |
 
 ---
 
