@@ -3,8 +3,6 @@
 # 🛡️ NLP-Based Detection of Phishing in Sinhala/Singlish Mobile Messages
 
 [![Android CI](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/android-ci.yml/badge.svg)](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/android-ci.yml)
-[![Python CI](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/python-ci.yml/badge.svg)](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/python-ci.yml)
-[![Security Scan](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/security.yml/badge.svg)](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/security.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-3776AB.svg)](https://python.org)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF.svg)](https://kotlinlang.org)
