@@ -2,12 +2,6 @@
 
 # 🛡️ NLP-Based Detection of Phishing in Sinhala/Singlish Mobile Messages
 
-[![Android CI](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/android-ci.yml/badge.svg)](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection/actions/workflows/android-ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.10](https://img.shields.io/badge/Python-3.10-3776AB.svg)](https://python.org)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF.svg)](https://kotlinlang.org)
-[![Android](https://img.shields.io/badge/Android-API%2024+-34A853.svg)](https://developer.android.com)
-![Project Status](https://img.shields.io/badge/Status-Milestone%202-orange)
 
 **An AI-powered Android application that detects phishing attempts in Sinhala and Singlish (romanized Sinhala) mobile messages using Natural Language Processing.**
 
