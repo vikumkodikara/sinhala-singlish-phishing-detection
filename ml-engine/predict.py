@@ -2,244 +2,117 @@
 Inference Entry Point
 ======================
 
-Provides a high-level API for running phishing detection predictions
-on individual messages or batches.  This module ties together the
-preprocessing pipeline, tokeniser, and model inference.
+Provides high-level API and CLI for running phishing detection predictions
+on individual messages or batches using the trained BiGRU + Attention Keras model.
 
 Usage::
 
     # Command-line
-    python -m ml_engine.predict --text "ඔබගේ ගිණුම verify කරන්න"
+    python ml-engine/predict.py --text "ඔබගේ ගිණුම verify කරන්න http://bank.com"
 
     # Programmatic
     from ml_engine.predict import PhishingDetector
-    detector = PhishingDetector(model_dir="results/models")
-    result = detector.predict("Click this link to verify your account")
+    detector = PhishingDetector()
+    result = detector.predict("Click this link to verify your account http://scam.xyz")
 
 Author:
     Vikum Kodikara
 """
-
 from __future__ import annotations
 
 import argparse
 import logging
-from collections.abc import Sequence
-from dataclasses import dataclass
+import sys
 from pathlib import Path
+from typing import Sequence, Dict, Any
 
-from ml_engine.preprocessing.clean_text import clean_text
-from ml_engine.preprocessing.normalize_singlish import normalize_singlish
-from ml_engine.preprocessing.normalize_sinhala import normalize_sinhala
-from ml_engine.preprocessing.remove_noise import remove_noise
-from ml_engine.utils.logger import setup_logger
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# Ensure utf-8 output for console
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+from backend.app.services.model_service import ModelService
+from backend.app.schemas.prediction import PredictResponse
 
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Result data class
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class PredictionResult:
-    """Encapsulates a single prediction outcome.
-
-    Attributes:
-        text: The original input text.
-        label: Predicted label (``SAFE`` or ``PHISHING``).
-        confidence: Model confidence score (0.0–1.0).
-        risk_score: Normalised risk score (0.0–1.0), where 1.0 is
-            highest risk.
-        preprocessed_text: The text after preprocessing.
-    """
-
-    text: str
-    label: str
-    confidence: float
-    risk_score: float
-    preprocessed_text: str = ""
-
-    def is_phishing(self) -> bool:
-        """Return ``True`` if the message is classified as phishing."""
-        return self.label == "PHISHING"
-
-    def to_dict(self) -> dict:
-        """Serialise to a dictionary."""
-        return {
-            "text": self.text,
-            "label": self.label,
-            "confidence": self.confidence,
-            "risk_score": self.risk_score,
-            "is_phishing": self.is_phishing(),
-        }
-
-
-# ---------------------------------------------------------------------------
-# Detector
-# ---------------------------------------------------------------------------
-
-
 class PhishingDetector:
-    """High-level phishing detection interface.
-
-    Orchestrates preprocessing and model inference.
-
-    Attributes:
-        model_dir: Directory containing the trained model artefacts.
-        model: The loaded model instance.
-        tokenizer: The loaded tokeniser.
-    """
+    """High-level phishing detection interface using the pre-trained BiGRU model."""
 
     def __init__(
         self,
-        model_dir: str | Path = "results/models",
+        model_dir: str | Path | None = None,
         threshold: float = 0.5,
     ) -> None:
-        """Initialise the phishing detector.
-
-        Args:
-            model_dir: Path to the directory containing the trained
-                model, tokeniser, and labels.
-            threshold: Classification threshold for the phishing class.
-        """
+        if model_dir is None:
+            model_dir = PROJECT_ROOT / "backend" / "models"
         self.model_dir = Path(model_dir)
         self.threshold = threshold
-        self.model = None
-        self.tokenizer = None
-
-        logger.info(
-            "PhishingDetector initialised (model_dir=%s, threshold=%.2f)",
-            self.model_dir,
-            self.threshold,
-        )
+        self.service = ModelService.get_instance(models_dir=self.model_dir)
+        self.load()
 
     def load(self) -> None:
-        """Load the model and tokeniser from disk.
+        """Load the model and tokenizer assets."""
+        if not self.service.is_initialized:
+            self.service.load()
 
-        Raises:
-            FileNotFoundError: If the model directory does not exist.
-        """
-        if not self.model_dir.exists():
-            raise FileNotFoundError(f"Model directory not found: {self.model_dir}")
-
-        # TODO: Load TFLite model or Keras model
-        # TODO: Load tokeniser from JSON
-        # TODO: Load labels from JSON
-
-        logger.info("Model and tokeniser loaded from %s", self.model_dir)
-
-    def preprocess(self, text: str) -> str:
-        """Apply the full preprocessing pipeline to a message.
-
-        Args:
-            text: Raw input message.
-
-        Returns:
-            Preprocessed text ready for inference.
-        """
-        logger.debug("Preprocessing: %s", text[:50])
-
-        # Step 1: Basic cleaning
-        text = clean_text(text)
-
-        # Step 2: Script-specific normalisation
-        text = normalize_sinhala(text)
-        text = normalize_singlish(text)
-
-        # Step 3: Noise removal
-        text = remove_noise(text)
-
-        return text
-
-    def predict(self, text: str) -> PredictionResult:
+    def predict(self, text: str) -> PredictResponse:
         """Run phishing detection on a single message.
 
         Args:
-            text: Raw input message text.
+            text: Raw input message string.
 
         Returns:
-            A :class:`PredictionResult` with the detection outcome.
+            PredictResponse with prediction label, probability, confidence,
+            risk level, script detection, and 9 handcrafted features.
         """
-        logger.info("Predicting on text (len=%d)", len(text))
+        return self.service.predict(text)
 
-        # Preprocess
-        preprocessed = self.preprocess(text)
-
-        # TODO: Tokenise and encode
-        # TODO: Run model inference
-        # TODO: Map output to label and confidence
-
-        # Placeholder result
-        result = PredictionResult(
-            text=text,
-            label="SAFE",
-            confidence=0.0,
-            risk_score=0.0,
-            preprocessed_text=preprocessed,
-        )
-
-        logger.info("Prediction: %s (confidence=%.2f)", result.label, result.confidence)
-        return result
-
-    def predict_batch(
-        self,
-        texts: Sequence[str],
-    ) -> list[PredictionResult]:
-        """Run phishing detection on a batch of messages.
-
-        Args:
-            texts: List of raw input message strings.
-
-        Returns:
-            List of :class:`PredictionResult` instances.
-        """
-        logger.info("Batch prediction on %d texts", len(texts))
-        return [self.predict(text) for text in texts]
-
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
+    def predict_batch(self, texts: Sequence[str]) -> list[PredictResponse]:
+        """Run phishing detection on a batch of messages."""
+        return [self.predict(t) for t in texts]
 
 
 def main() -> None:
-    """Command-line entry point for single-message prediction."""
+    """Command-line entry point for message prediction."""
     parser = argparse.ArgumentParser(
-        description="Detect phishing in a Sinhala/Singlish message."
+        description="Detect phishing in a Sinhala/Singlish/English SMS message."
     )
     parser.add_argument(
         "--text",
         type=str,
         required=True,
-        help="The message text to analyse.",
+        help="The message text to analyze.",
     )
     parser.add_argument(
         "--model-dir",
         type=str,
-        default="results/models",
-        help="Path to the trained model directory.",
-    )
-    parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.5,
-        help="Classification threshold.",
+        default=None,
+        help="Path to the trained model directory (default: backend/models).",
     )
     args = parser.parse_args()
 
-    setup_logger(log_level="INFO")
-
-    detector = PhishingDetector(
-        model_dir=args.model_dir,
-        threshold=args.threshold,
-    )
-    # Note: load() will fail until a model is trained — expected for M2
-    # detector.load()
-
+    detector = PhishingDetector(model_dir=args.model_dir)
     result = detector.predict(args.text)
-    print(result.to_dict())
+
+    print("\n" + "=" * 65)
+    print("PREDICTION RESULT")
+    print("=" * 65)
+    print(f"Prediction       : {result.prediction}")
+    print(f"Probability      : {result.probability:.4f}")
+    print(f"Confidence       : {result.confidence}%")
+    print(f"Risk Level       : {result.risk_level}")
+    print(f"Detected Script  : {result.detected_script}")
+    print(f"Preprocessed Text: {result.preprocessed_text}")
+    print("\nDetected Handcrafted Features:")
+    for k, v in result.detected_features.model_dump().items():
+        print(f"  - {k:22s}: {v}")
+    print("=" * 65 + "\n")
 
 
 if __name__ == "__main__":
