@@ -46,6 +46,15 @@ venv/
 env/
 ENV/
 
+# -------------------- Node / Frontend --------------------
+node_modules/
+.npm/
+.vite/
+.eslintcache
+frontend/dist/
+frontend/node_modules/
+
+
 # -------------------- ML artifacts (generated) --------------------
 *.model
 *.h5
