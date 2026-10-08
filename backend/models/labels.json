@@ -1,0 +1,11 @@
+{
+  "labels": [
+    "SAFE",
+    "PHISHING"
+  ],
+  "threshold": 0.5,
+  "mapping": {
+    "0": "SAFE",
+    "1": "PHISHING"
+  }
+}
