@@ -1,382 +1,403 @@
-<div align="center">
+# Sinhala/Singlish Phishing Detection System
 
-# 🛡️ NLP-Based Detection of Phishing in Sinhala/Singlish Mobile Messages
-
-
-**An AI-powered Android application that detects phishing attempts in Sinhala and Singlish (romanized Sinhala) mobile messages using Natural Language Processing.**
-
-[Research Paper](#citation) · [Installation](#installation) · [Architecture](#system-architecture) · [Contributing](CONTRIBUTING.md)
-
-</div>
+> **AI-Assisted Phishing Detection for Sinhala, Singlish, and English Mobile Messages**  
+> *University Research Prototype &bull; Natural Language Processing &bull; Deep Learning*
 
 ---
 
-## 📋 Table of Contents
+## Overview
 
-- [Project Overview](#project-overview)
-- [Research Motivation](#research-motivation)
-- [Research Gap](#research-gap)
-- [Objectives](#objectives)
-- [System Architecture](#system-architecture)
-- [Repository Structure](#repository-structure)
-- [Technology Stack](#technology-stack)
-- [Installation](#installation)
-- [Research Timeline](#research-timeline)
-- [Milestone Progress](#milestone-progress)
-- [Future Work](#future-work)
-- [Contributors](#contributors)
-- [License](#license)
-- [Citation](#citation)
+Mobile SMS phishing (*smishing*) has become a prevalent threat targeting mobile subscribers in Sri Lanka. Attackers frequently exploit multilingual communication patterns—combining **Sinhala Unicode script**, **Singlish** (Sinhala language written phonetically in Latin script), and **English**—to evade standard keyword and heuristic filters.
 
----
+This repository provides a web-based phishing message detection system powered by a pre-trained **Bidirectional GRU (BiGRU) neural network with a custom Attention Mechanism** and **9 domain-engineered handcrafted features**. The system performs real inference using the original trained Keras (`.keras`) model without retraining, quantization loss, or mock outputs.
 
-## 🔍 Project Overview
-
-This research project addresses the critical gap in phishing detection for **low-resource South Asian languages**, specifically targeting **Sinhala** (සිංහල) and **Singlish** (romanized Sinhala) text messages on mobile devices.
-
-The project delivers:
-
-1. **ML Engine** (Python) — A complete NLP pipeline for dataset processing, feature engineering, model training, and evaluation.
-2. **Android Application** (Kotlin) — An on-device phishing detection app using TensorFlow Lite for offline inference.
-
-### Key Features
-
-- **Multilingual Support**: Handles native Sinhala Unicode, Singlish (Latin script), and code-switched messages
-- **Offline Detection**: On-device TFLite inference — no internet required
-- **Real-Time Analysis**: Sub-50ms inference on modern Android devices
-- **Risk Scoring**: Granular risk assessment with confidence scores
-- **Detection History**: Persistent local history with filtering and export
-- **Privacy-First**: All processing happens on-device; no data leaves the phone
-
----
-
-## 🎯 Research Motivation
-
-Sri Lanka has seen a significant increase in SMS-based phishing attacks targeting mobile users. These attacks frequently use:
-
-- **Sinhala text** to impersonate banks, government agencies, and telecom providers
-- **Singlish** (romanized Sinhala) which is the dominant informal writing system in Sri Lankan digital communication
-- **Code-switching** between Sinhala and English within the same message
-
-Existing phishing detection systems are overwhelmingly designed for English text and fail to handle the linguistic complexities of Sinhala and Singlish.
-
----
-
-## 🔬 Research Gap
-
-| Dimension | Current State | Our Contribution |
-|---|---|---|
-| **Language Coverage** | English-dominant phishing detection | First Sinhala/Singlish-specific detector |
-| **Script Handling** | Single-script systems | Multi-script (Sinhala Unicode + Latin) |
-| **Code-Switching** | Not addressed | Handles mixed Sinhala-English messages |
-| **Deployment** | Server-side inference | On-device (offline) via TFLite |
-| **SMS Focus** | General web/email phishing | Mobile SMS-specific features |
-
----
-
-## 🎯 Objectives
-
-1. **Build a labelled dataset** of Sinhala and Singlish phishing/legitimate SMS messages
-2. **Develop preprocessing pipelines** for Sinhala Unicode normalisation and Singlish transliteration
-3. **Engineer domain-specific features** including URL analysis, urgency detection, and script-ratio metrics
-4. **Train and evaluate** hybrid NLP models (BiLSTM + feature-based) for phishing classification
-5. **Deploy on Android** as a lightweight TFLite model with offline capability
-6. **Publish findings** as a peer-reviewed research paper
-
----
-
-## 🏗️ System Architecture
-
-The system follows a **7-stage pipeline** from data collection through to on-device Android deployment:
-
-```mermaid
-flowchart TD
-    subgraph S1["1. DATA SOURCES"]
-        DS1["Primary Dataset\nSri Lankan SMS Survey\nSinhala, Singlish, Mixed"]
-        DS2["Supplementary Dataset\nEnglish SMS 5,171"]
-    end
-
-    subgraph S2["2. PREPROCESSING"]
-        P1["Dataset Filtering & Anonymization"]
-        P2["Text Cleaning & Unicode NFC Normalization"]
-        P3["Sinhala & Singlish Normalization"]
-        P4["URL and Special Token Handling"]
-        P1 --> P2 --> P3 --> P4
-    end
-
-    subgraph S3["3. FEATURE PROCESSING"]
-        subgraph TB["TEXT BRANCH"]
-            T1["Tokenization"]
-            T2["Sequence Encoding"]
-            T3["Embedding Layer"]
-            T4["BiLSTM"]
-            T5["Sequence Encoding"]
-            T6["Attention Mechanism"]
-            T1 --> T2 --> T3 --> T4 --> T5 --> T6
-        end
-        subgraph FB["FEATURE BRANCH"]
-            F1["URL Features"]
-            F2["Linguistic Features"]
-            F3["Message-Level Features"]
-            F1 --> F2 --> F3
-        end
-    end
-
-    subgraph S5["5. HYBRID CLASSIFICATION"]
-        H1["Feature Fusion"]
-        H2["Dense Layer + Dropout"]
-        H3["Sigmoid Binary Classifier"]
-        H1 --> H2 --> H3
-    end
-
-    subgraph S6["6. OUTPUT INTERPRETATION"]
-        O1["Prediction: SAFE or PHISHING"]
-        O2["Phishing Risk Score"]
-        O3["Explainable Result\nImportant Indicators"]
-        O1 --> O2 --> O3
-    end
-
-    subgraph S7["7. ANDROID DEPLOYMENT"]
-        A1["Optimized TensorFlow Lite Model"]
-        A2["Offline On-Device Inference"]
-        A3["Android Application\nRisk Score, Explanation, History"]
-        A1 --> A2 --> A3
-    end
-
-    DS1 --> P1
-    DS2 --> P1
-    P4 --> T1
-    P4 --> F1
-    T6 --> H1
-    F3 --> H1
-    H3 --> O1
-    O3 --> A1
+```
++-----------------------------------------------------------------------------------+
+|                                WEB BROWSER UI                                     |
+|  [ Paste SMS Message in Sinhala, Singlish, or English ] -> [ Analyze Message ]   |
++-----------------------------------------+-----------------------------------------+
+                                          | HTTP POST /api/v1/predict
+                                          v
++-----------------------------------------------------------------------------------+
+|                              FASTAPI REST BACKEND                                 |
+|                                                                                   |
+|   1. Text Preprocessing (Unicode NFC, Number-Preserving Token Normalization)     |
+|   2. Sequence Tokenization (Max Length = 120, Vocab Size = 8,908)                |
+|   3. Handcrafted Feature Extraction (9 URL & Linguistic Domain Signals)           |
+|                                                                                   |
+|                                         v                                         |
+|                   +---------------------------------------------+                 |
+|                   |  Trained Keras Model (Multi-Input BiGRU)    |                 |
+|                   |  - Text Branch: Embedding -> BiGRU -> Attn  |                 |
+|                   |  - Feature Branch: StandardScaler -> Dense  |                 |
+|                   |  - Feature Fusion -> Dense MLP -> Sigmoid   |                 |
+|                   +---------------------------------------------+                 |
+|                                         |                                         |
+|   4. Prediction Verdict (PHISHING / SAFE), Confidence %, Risk Level, Indicators  |
++-----------------------------------------+-----------------------------------------+
+                                          | JSON Response
+                                          v
++-----------------------------------------------------------------------------------+
+|                           CYBERSECURITY DASHBOARD UI                              |
+|   [ Status Badge | Confidence Meter | 9 Features Matrix | Normalized Sequence ]   |
++-----------------------------------------------------------------------------------+
 ```
 
-### Pipeline Stages
+---
 
-| Stage | Description | Implementation |
-|-------|-------------|----------------|
-| **1. Data Sources** | Primary Sri Lankan SMS survey (Sinhala, Singlish, mixed) + supplementary English SMS corpus (5,171 messages) | `dataset/raw/` |
-| **2. Preprocessing** | Filtering, anonymization, Unicode NFC normalization, script-specific normalization, URL/special token replacement | `ml-engine/preprocessing/` |
-| **3. Feature Processing** | **Text Branch**: Tokenization → Embedding → BiLSTM → Attention. **Feature Branch**: URL features (12-dim) + linguistic features (11-dim) + message-level features | `ml-engine/preprocessing/tokenizer.py`, `ml-engine/features/` |
-| **5. Hybrid Classification** | Feature fusion of both branches → Dense + Dropout → Sigmoid binary classifier | `ml-engine/models/` |
-| **6. Output Interpretation** | Binary prediction (SAFE/PHISHING), phishing risk score (0.0–1.0), explainable result with important indicators | `ml-engine/predict.py`, `ml-engine/evaluation/` |
-| **7. Android Deployment** | Optimized TFLite model, offline on-device inference, Android app with risk score, explanation, and history | `ml-engine/export/`, `app/` |
+## Research Motivation
+
+1. **Multilingual Complexity in Sri Lanka**: Mobile communication in Sri Lanka dynamically shifts between native Sinhala script (`ඔබගේ ගිණුම`), Singlish phonetic transliteration (`oyage account eka`), and English (`verify your password`). Attackers leverage code-mixing to bypass monolingual rule-based security systems.
+2. **Context-Aware Sequence Understanding**: Conventional keyword blocklists fail against subtle variations. Recurrent deep learning with attention captures bidirectional contextual dependencies across characters and words.
+3. **Hybrid Feature Fusion**: Incorporating structural URL indicators (subdomain counts, URL lengths) with linguistic signals (financial keywords, punctuation intensity) provides critical domain context alongside deep sequence embeddings.
 
 ---
 
-## 📂 Repository Structure
+## Features
+
+- **Real Deep Learning Inference**: Loads the pre-trained `phishing_model.keras` into memory on backend startup.
+- **Multilingual Support**: Analyzes messages written in **Sinhala (Unicode)**, **Singlish (Latin)**, **English**, and mixed scripts.
+- **9 Handcrafted Domain Features**: Extracted strictly via safe static text analysis.
+- **Zero URL Fetching Guarantee**: Embedded URLs are analyzed purely as text strings; no external HTTP requests, DNS resolutions, or socket calls are ever made.
+- **Privacy by Design**: Submissions are evaluated in-memory and are not permanently logged or stored on disk.
+- **Professional Cybersecurity Interface**: Dark-mode dashboard with instant feedback, risk level categorization, confidence metering, and feature breakdowns.
+- **Full Research Transparency**: Interactive benchmarks and model architecture views explaining dataset distributions and evaluation limits.
+
+---
+
+## System Architecture
+
+The solution uses a decoupled, containerized client-server architecture:
+
+- **Frontend**: React 18, TypeScript, Vite, Vanilla CSS design system tailored for cybersecurity operations.
+- **Backend**: Python 3.11/3.13, FastAPI, Uvicorn, TensorFlow / Keras 3.
+- **Model Storage**: Loaded once at startup using a singleton service pattern (`ModelService`).
+
+---
+
+## Machine Learning Model
+
+The trained deep learning model (`Sinhala_Singlish_Phishing_BiGRU_Model`) is a **multi-input hybrid architecture**:
+
+| Component | Layer / Specification | Output Shape | Parameters |
+|---|---|---|---|
+| **Text Input** | `text_input` (Sequence IDs) | `(None, 120)` | 0 |
+| **Embedding** | `Embedding(input_dim=8909, output_dim=128)` | `(None, 120, 128)` | 1,140,352 |
+| **Recurrent Encoder** | `Bidirectional(GRU(64, return_sequences=True))` | `(None, 120, 128)` | 74,496 |
+| **Attention Mechanism**| `AttentionLayer()` (Context Softmax Weighting) | `(None, 128)` | 248 |
+| **Feature Input** | `feature_input` (9 Handcrafted Features) | `(None, 9)` | 0 |
+| **Feature Dense** | `Dense(32, activation='relu')` | `(None, 32)` | 320 |
+| **Fusion Layer** | `Concatenate([Attention, Feature_Dense])` | `(None, 160)` | 0 |
+| **Dense Head 1** | `Dense(64, activation='relu')` + `Dropout(0.3)` | `(None, 64)` | 10,304 |
+| **Dense Head 2** | `Dense(32, activation='relu')` + `Dropout(0.2)` | `(None, 32)` | 2,080 |
+| **Output Layer** | `Dense(1, activation='sigmoid')` | `(None, 1)` | 33 |
+
+**Total Parameters**: 3,683,501 (14.05 MB) &bull; **Trainable Parameters**: 1,227,833 (4.68 MB).
+
+---
+
+## Dataset
+
+The model was trained on the **Sinhala/Singlish Mobile Phishing Master Dataset**:
+
+- **Total Records**: 10,040 messages
+- **Synthetic Records**: 10,000 augmented examples (controlled phishing templates and legitimate notifications)
+- **Authentic Local Observations**: 40 real-world user-submitted messages
+- **Split Ratio**: 70% Training (7,028 samples), 15% Validation (1,506 samples), 15% Testing (1,506 samples)
+
+---
+
+## Preprocessing
+
+The preprocessing pipeline reproduces the exact normalization used during training:
+
+1. **Unicode NFC Normalization**: Standardizes Sinhala vowel diacritics and composite glyphs (`unicodedata.normalize("NFC", text)`).
+2. **Whitespace Normalization**: Collapses irregular tabs, newlines, and multi-spaces (`re.sub(r"\s+", " ", text)`).
+3. **Number-Preserving Character Normalization**: Repeated characters in words are collapsed to at most 3 instances (e.g. `pleeeeease` &rarr; `pleeease`), while numeric strings (`Rs.250000`, `OTP 849201`, phone numbers) are **strictly preserved** using `re.sub(r"([^\d\s])\1{3,}", r"\1\1\1", text)`.
+4. **Tokenization & Sequence Padding**: Maps word tokens to integer vocabulary indices (`MAX_WORDS=20000`, `MAX_LENGTH=120`, post-padding with 0).
+
+---
+
+## Handcrafted Features
+
+The model ingests 9 domain-specific numerical features, standardized via `StandardScaler`:
+
+1. `url_count`: Total URLs matching `https?://\S+|www\.\S+`.
+2. `url_length`: Character length of the longest embedded URL.
+3. `subdomain_count`: Number of nested subdomains in the domain host.
+4. `digit_count`: Total numeric digits in the message.
+5. `exclamation_count`: Frequency of exclamation marks (`!`).
+6. `question_count`: Frequency of question marks (`?`).
+7. `text_length`: Total character count of normalized message.
+8. `word_count`: Total word count.
+9. `suspicious_word_count`: Hits against financial/urgency keyword vocabulary (`otp`, `verify`, `account`, `bank`, `password`, `urgent`, `click`, `win`, `winner`, `free`, `prize`, `refund`, `loan`, `payment`, `deposit`, `register`).
+
+---
+
+## API Documentation
+
+### 1. Health Check
+`GET /health`
+
+**Response (`200 OK`)**:
+```json
+{
+  "status": "healthy",
+  "model_loaded": true,
+  "model_name": "Sinhala_Singlish_Phishing_BiGRU_Model",
+  "version": "1.0.0",
+  "vocab_size": 8908,
+  "max_sequence_length": 120,
+  "num_features": 9
+}
+```
+
+### 2. Predict Message
+`POST /api/v1/predict`
+
+**Request Body**:
+```json
+{
+  "message": "Congratulations! You have won Rs. 50,000 in the Dialog Mega Draw. Claim now at http://secure-dialog-reward.xyz/claim"
+}
+```
+
+**Response (`200 OK`)**:
+```json
+{
+  "prediction": "PHISHING",
+  "probability": 0.9986,
+  "confidence": 99.86,
+  "risk_level": "HIGH",
+  "detected_script": "English / Singlish",
+  "preprocessed_text": "Congratulations! You have won Rs. 50,000 in the Dialog Mega Draw. Claim now at http://secure-dialog-reward.xyz/claim",
+  "detected_features": {
+    "url_count": 1,
+    "url_length": 37,
+    "subdomain_count": 0,
+    "digit_count": 5,
+    "exclamation_count": 1,
+    "question_count": 0,
+    "text_length": 127,
+    "word_count": 17,
+    "suspicious_word_count": 1
+  },
+  "warning": null
+}
+```
+
+### 3. Model Metadata & Benchmarks
+`GET /api/v1/model-info`
+
+### 4. Benchmark Samples
+`GET /api/v1/samples`
+
+Interactive Swagger documentation is available at `http://localhost:8000/docs`.
+
+---
+
+## Running Locally
+
+### Prerequisites
+- Python 3.10+ (tested on Python 3.11 and 3.13)
+- Node.js 18+ and npm
+
+### 1. Backend Setup
+```bash
+# Install Python dependencies
+pip install -r backend/requirements.txt
+
+# Run model validation script
+python scripts/test_model_inference.py
+
+# Start FastAPI server
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+The backend will be available at `http://localhost:8000`.
+
+### 2. Frontend Setup
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+The web application will open at `http://localhost:3000`.
+
+---
+
+## Docker Deployment
+
+Deploy the entire stack with Docker Compose:
+
+```bash
+# Build and run backend + frontend containers
+docker-compose up --build -d
+
+# Check service status
+docker-compose ps
+
+# View backend logs
+docker-compose logs -f backend
+```
+
+- **Web Frontend**: `http://localhost:3000`
+- **FastAPI Backend**: `http://localhost:8000`
+- **Swagger Docs**: `http://localhost:8000/docs`
+
+---
+
+## Cloudflare Deployment
+
+The application is structured for easy deployment on **Cloudflare**:
+
+1. **Frontend on Cloudflare Pages**: Connect your Git repository, set root directory to `frontend`, build command to `npm run build`, output directory to `dist`, and set environment variable `VITE_API_URL` to your backend API URL.
+2. **Backend via Cloudflare Tunnel / DNS**: Deploy the backend container via Docker and connect it to Cloudflare edge using **Cloudflare Tunnel (`cloudflared`)** or **Cloudflare Proxied DNS** for global SSL and DDoS protection.
+
+> For complete step-by-step instructions, see the [Cloudflare Deployment Guide](docs/CLOUDFLARE_DEPLOYMENT.md).
+
+---
+
+## Testing
+
+Run the full automated test suite:
+
+```bash
+# Run backend unit and integration tests with pytest
+python -m pytest backend/tests/ -v
+
+# Run model inference validation
+python scripts/test_model_inference.py
+
+# Run CLI prediction test
+python ml-engine/predict.py --text "ඔබගේ බැංකු ගිණුම verify කරන්න http://bank.com"
+```
+
+---
+
+## Research Results
+
+### 1. Synthetic-Heavy Random-Split Benchmark (Held-out Test Set, N=1,344)
+- **Accuracy**: 100.0%
+- **Precision**: 100.0%
+- **Recall**: 100.0%
+- **F1-Score**: 100.0%
+- **ROC-AUC**: 1.0000
+- **Confusion Matrix**: True Negative = 327, False Positive = 0, False Negative = 0, True Positive = 1,017
+
+### 2. Real-World Authentic Message Holdout Audit (N=28 Authentic Messages)
+- **Accuracy**: 92.86%
+- **Precision**: 100.0%
+- **Recall**: 92.31%
+- **F1-Score**: 96.00%
+- **ROC-AUC**: 0.9808
+- **Confusion Matrix**:
+  - `SAFE`: 2 correctly classified, 0 false alarms
+  - `PHISHING`: 24 correctly classified, 2 missed
+
+*Note: The real-message audit is exploratory due to the small real-world holdout sample size. Results are presented for academic transparency and should not be construed as a commercial production guarantee.*
+
+---
+
+## Limitations
+
+1. **Android/TFLite Deployment Constraint**:
+   > The original research direction considered on-device Android deployment. The recurrent Keras model was not successfully converted to TensorFlow Lite due to recurrent-operation compatibility constraints (bidirectional GRU states and custom attention layer mapping). The current implementation therefore provides server-side inference through a web application.
+2. **Small Real-World Sample Size**: The primary dataset relies heavily on synthetic templates (10,000 synthetic vs. 40 real). Ongoing research is expanding real-world Sri Lankan smishing collections.
+3. **Evolving Attack Vectors**: Novel zero-day homoglyphs, obfuscated URL shorteners, or unseen Singlish slang may require periodic vocabulary updates.
+
+---
+
+## Future Work
+
+- Expanding authentic Sri Lankan SMS datasets through crowd-sourced threat intelligence.
+- Fine-tuning lightweight multilingual Transformer models (e.g., Sinhala-BERT / XLM-RoBERTa).
+- Implementing ONNX runtime export for cross-platform low-latency edge deployment.
+- Integrating real-time threat intelligence feed lookups for newly registered phishing domains.
+
+---
+
+## Project Structure
 
 ```
 sinhala-singlish-phishing-detection/
-├── app/                          # Android application (Kotlin)
-│   └── src/main/
-│       ├── java/.../
-│       │   ├── presentation/     # UI layer (Compose screens, ViewModels)
-│       │   ├── domain/           # Business logic (use cases, models)
-│       │   ├── data/             # Data layer (Room, repositories)
-│       │   ├── di/               # Dependency injection (Hilt)
-│       │   ├── ml/               # TFLite inference (ModelLoader, Predictor)
-│       │   └── utils/            # Shared utilities
-│       └── assets/               # TFLite model + tokenizer config
-├── ml-engine/                    # ML pipeline (Python)
-│   ├── preprocessing/            # Text cleaning, normalisation, tokenisation
-│   ├── dataset/                  # Data loading, splitting, annotation
-│   ├── features/                 # URL and linguistic feature extraction
-│   ├── models/                   # Model architectures
-│   ├── training/                 # Training pipeline
-│   ├── evaluation/               # Metrics and reporting
-│   ├── export/                   # TFLite export
-│   └── utils/                    # Logging, configuration
-├── dataset/                      # Raw and processed SMS data
-│   ├── raw/                      # google_form_sms_dataset.csv, sms_phishing_dataset_v1.csv
-│   ├── processed/                # final_sms_phishing_dataset.csv (generated)
-│   └── README.md                 # Dataset documentation
-├── docs/                         # Research documentation
-├── configs/                      # Pipeline configuration (YAML)
-├── scripts/                      # merge_datasets.py, preprocess_sample.py
-├── notebooks/                    # data_exploration.ipynb
-├── tests/                        # Unit tests (Python + Android)
-├── .github/                      # CI/CD workflows + templates
-├── experiments/                  # Experiment tracking
-└── results/                      # Model outputs and reports
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py                      # FastAPI application entry point & lifespan
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   └── routes.py                # REST API endpoints (/predict, /health, /model-info)
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── model_service.py         # Singleton Keras model loader & AttentionLayer
+│   │   │   ├── preprocessing.py         # Unicode NFC & number-preserving normalization
+│   │   │   └── feature_extraction.py    # 9 handcrafted URL and linguistic features
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   └── prediction.py            # Pydantic request & response schemas
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       └── logger.py                # Security-conscious structured logging
+│   ├── models/
+│   │   ├── phishing_model.keras         # Trained BiGRU + Attention research model
+│   │   ├── tokenizer.json               # Trained tokenizer vocabulary & index
+│   │   ├── feature_scaler.json          # StandardScaler mean & scale parameters
+│   │   └── labels.json                  # Class label mappings & threshold
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── test_api.py                  # Endpoint integration tests
+│   │   ├── test_preprocessing.py        # Normalization & number-preservation tests
+│   │   └── test_feature_extraction.py   # Feature extraction & security tests
+│   ├── requirements.txt                 # Backend Python dependencies
+│   └── Dockerfile                       # Backend container definition
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Header.tsx               # Top navigation & live model status badge
+│   │   │   ├── MessageAnalyzer.tsx      # Text input, character counter, sample chips
+│   │   │   ├── PredictionResultCard.tsx # Threat verdict card, probability, indicators
+│   │   │   ├── FeatureBreakdown.tsx     # 9 Handcrafted features matrix & sequence
+│   │   │   ├── SampleMessages.tsx       # Benchmark test cases selector
+│   │   │   ├── ResearchResultsView.tsx  # Synthetic benchmark vs real holdout comparison
+│   │   │   ├── ArchitectureView.tsx     # Neural graph & Android transition docs
+│   │   │   └── SecurityAdvisory.tsx     # Threat isolation & privacy policy
+│   │   ├── styles/
+│   │   │   └── index.css                # Cybersecurity design system tokens
+│   │   ├── types.ts                     # TypeScript data interfaces
+│   │   ├── App.tsx                      # Root application layout & state manager
+│   │   └── main.tsx                     # React entry point
+│   ├── public/
+│   ├── index.html                       # HTML5 template with Google Fonts
+│   ├── package.json                     # Frontend dependencies
+│   ├── tsconfig.json                    # TypeScript compiler configuration
+│   ├── vite.config.ts                   # Vite bundler & API proxy configuration
+│   ├── nginx.conf                       # Production Nginx reverse proxy configuration
+│   └── Dockerfile                       # Frontend container definition
+│
+├── scripts/
+│   └── test_model_inference.py          # Standalone model validation script
+│
+├── ml-engine/
+│   └── predict.py                       # High-level CLI prediction script
+│
+├── dataset/
+│   ├── processed/
+│   └── raw/
+│
+├── docker-compose.yml                   # Multi-container orchestration
+├── .env.example                         # Environment configuration template
+├── pyproject.toml                       # Python project metadata & tool configs
+└── README.md                            # Comprehensive system documentation
 ```
 
 ---
 
-## 🛠️ Technology Stack
+## Authors
 
-### Android Module
-
-| Component | Technology |
-|---|---|
-| Language | Kotlin 2.0 |
-| UI Framework | Jetpack Compose + Material Design 3 |
-| Architecture | MVVM + Clean Architecture |
-| DI | Hilt (planned) |
-| Database | Room |
-| Async | Coroutines + Flow |
-| ML Inference | TensorFlow Lite |
-| Navigation | Navigation Compose |
-| Min SDK | API 24 (Android 7.0) |
-
-### ML Engine Module
-
-| Component | Technology |
-|---|---|
-| Language | Python 3.10 |
-| ML Framework | TensorFlow / Keras |
-| NLP | Custom tokeniser + feature engineering |
-| Data Processing | pandas, NumPy |
-| Evaluation | scikit-learn |
-| Code Quality | Black, Ruff, MyPy |
-| Testing | pytest |
-| Security | Bandit, pip-audit |
-
----
-
-## Installation
-
-### Prerequisites
-
-- **Android Studio** Ladybug or later
-- **JDK 21**
-- **Python 3.10+**
-- **Git**
-
-### Android Studio Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/vikumkodikara/sinhala-singlish-phishing-detection.git
-
-# Open in Android Studio
-# File → Open → select the project root
-
-# Build the project
-./gradlew assembleDebug
-```
-
-### Python Setup
-
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
-
-# Install dependencies and the ML engine package
-pip install -r requirements.txt
-pip install -e .
-
-# Merge raw datasets into a unified processed file
-python scripts/merge_datasets.py
-
-# Preview preprocessing on sample messages
-python scripts/preprocess_sample.py --limit 5
-
-# Explore dataset in Jupyter
-jupyter notebook notebooks/data_exploration.ipynb
-
-# Verify installation
-python -c "from ml_engine.preprocessing import preprocess_message; print('OK')"
-```
-
-### Dataset
-
-Raw data lives in `dataset/raw/`:
-
-| File | Description |
-|------|-------------|
-| `google_form_sms_dataset.csv` | Consented Sri Lankan SMS survey responses |
-| `sms_phishing_dataset_v1.csv` | Public SMS spam/phishing corpus (5,174 messages) |
-
-Run `python scripts/merge_datasets.py` to produce `dataset/processed/final_sms_phishing_dataset.csv`.
-See `dataset/README.md` for schema, ethics, and label mapping details.
-
----
-
-## 📅 Research Timeline
-
-| Week | Focus Area | Status |
-|------|-----------|--------|
-| 1 | Repository setup, project architecture | ✅ Complete |
-| 2 | Dataset collection and annotation guidelines | 🔄 In Progress |
-| 3 | Preprocessing pipeline implementation | 🔄 In Progress |
-| 4 | Baseline models (Naive Bayes, SVM) | ⏳ Upcoming |
-| 5 | Hybrid deep learning model (BiLSTM + features) | ⏳ Upcoming |
-| 6 | Evaluation and ablation studies | ⏳ Upcoming |
-| 7 | Android integration and TFLite deployment | ⏳ Upcoming |
-| 8 | Research paper writing | ⏳ Upcoming |
-
----
-
-## ✅ Milestone Progress
-
-### Milestone 2 — Project Structure & Preprocessing *(Current)*
-
-- [x] Public GitHub repository
-- [x] Initial project structure
-- [x] README.md
-- [x] Data preprocessing scripts (`ml-engine/preprocessing/`)
-- [x] Dataset merge and preprocess utility scripts (`scripts/`)
-- [x] Raw datasets in `dataset/raw/`
-- [x] `dataset/README.md`
-- [x] requirements.txt
-- [x] Initial documentation
-- [x] CI/CD pipeline
-- [x] Meaningful commit history
-
-### Milestone 3 — Model Training & Evaluation *(Upcoming)*
-
-- [x] Initial dataset collection (survey + SMS corpus)
-- [ ] Full Sinhala/Singlish corpus labelling
-- [ ] Preprocessing pipeline completion
-- [ ] Feature engineering
-- [ ] Baseline model training
-- [ ] Hybrid model development
-- [ ] Evaluation and reporting
-
-### Milestone 4 — Android Integration *(Upcoming)*
-
-- [ ] TFLite model export
-- [ ] Android UI implementation
-- [ ] On-device inference integration
-- [ ] Testing and optimisation
-- [ ] Research paper submission
-
----
-
-## 🔮 Future Work
-
-- **Multilingual expansion**: Extend to Tamil and other South Asian languages
-- **Real-time SMS monitoring**: Background service for incoming message scanning
-- **Federated learning**: Privacy-preserving model updates without centralised data
-- **Explainability**: LIME / SHAP integration for interpretable predictions
-- **Browser extension**: Extend detection to mobile browser URLs
-
----
-
-## 👥 Contributors
-
-| Name | Role |
-|------|------|
-| Nimantha Vikum Kodikara | Developer |
-| Ravindhu Adheedha | Developer |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-<div align="center">
-
-**Built with ❤️ at Horizon Campus, Sri Lanka**
-
-*This project is part of an undergraduate research programme in Computing.*
-
-</div>
+- **Vikum Kodikara** &bull; Researcher & Developer &bull; Sri Lanka
+- Research Project: *“NLP-Based Detection of Phishing in Sinhala/Singlish Mobile Messages”*
