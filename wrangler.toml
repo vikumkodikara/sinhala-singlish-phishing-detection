@@ -4,4 +4,3 @@ pages_build_output_dir = "frontend/dist"
 
 [assets]
 directory = "frontend/dist"
-binding = "ASSETS"
