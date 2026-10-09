@@ -488,7 +488,7 @@ Content-Type: application/json
 
 ## Authors and Attribution
 
-- **Vikum Kodikara** — Lead Researcher & Developer
+- **Vikum Kodikara** — Research Contributor
 - **Ravindhu Adheesha** — Research Contributor
 - **Academic Research Topic**: NLP-Based Detection of Phishing Attacks in Multilingual Sinhala and Singlish Mobile Messages
 - **Institution**: University Research Project, Sri Lanka
