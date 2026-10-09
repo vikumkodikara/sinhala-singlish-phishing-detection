@@ -34,6 +34,18 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # Optional Cloudflare Tunnel for secure public HTTPS access from Cloudflare Pages
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: sinhala_phishing_tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+    profiles:
+      - tunnel
+
 networks:
   default:
     name: sinhala_phishing_network

@@ -50,13 +50,14 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configure CORS for frontend access
+# Configure CORS for frontend access (Cloudflare Pages, custom domains, mobile apps)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Supports local dev and docker environments
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
