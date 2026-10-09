@@ -9,8 +9,8 @@
 
 - **Public GitHub Repository**: [https://github.com/vikumkodikara/sinhala-singlish-phishing-detection](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection)
 - **Live Web Application (Frontend)**: [https://sinhala-singlish-phishing-detection.pages.dev](https://sinhala-singlish-phishing-detection.pages.dev)
-- **Live REST API (Backend)**: [https://sinhala-phishing-backend.onrender.com](https://sinhala-phishing-backend.onrender.com)
-- **Interactive API Documentation (Swagger)**: [https://sinhala-phishing-backend.onrender.com/docs](https://sinhala-phishing-backend.onrender.com/docs)
+- **Live REST API (Backend)**: [https://sinhala-singlish-phishing-detection.onrender.com](https://sinhala-singlish-phishing-detection.onrender.com)
+- **Interactive API Documentation (Swagger)**: [https://sinhala-singlish-phishing-detection.onrender.com/docs](https://sinhala-singlish-phishing-detection.onrender.com/docs)
 
 ---
 
