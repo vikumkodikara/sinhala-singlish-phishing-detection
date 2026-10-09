@@ -20,36 +20,106 @@ Mobile SMS phishing (smishing) represents a critical security challenge in Sri L
 
 This repository provides an end-to-end, production-ready phishing detection system powered by a pre-trained **Bidirectional Gated Recurrent Unit (BiGRU) neural network with a custom Attention Mechanism** integrated with **9 domain-engineered handcrafted features**. The solution delivers real-time inference via a containerized FastAPI backend and a responsive cybersecurity dashboard deployed on global edge infrastructure.
 
+## End-to-End System Architecture Pipeline
+
+```mermaid
+flowchart TD
+    subgraph S1["1. DATA SOURCES"]
+        D1["Primary Dataset<br/>Sri Lankan SMS Survey<br/>(Sinhala + Singlish + Mixed)"]
+        D2["Supplementary Dataset<br/>English SMS<br/>(5,171 Messages)"]
+    end
+
+    subgraph S2["2. PREPROCESSING"]
+        P1["Dataset Filtering & Anonymization"]
+        P2["Text Cleaning & Unicode NFC Normalization"]
+        P3["Sinhala & Singlish Normalization"]
+        P4["URL and Special Token Handling"]
+    end
+
+    subgraph S3["3. FEATURE PROCESSING"]
+        subgraph TB["TEXT BRANCH"]
+            T1["Tokenization"]
+            T2["Sequence Encoding"]
+            T3["Embedding Layer"]
+            T4["BiLSTM / BiGRU"]
+            T5["Attention Mechanism"]
+        end
+        subgraph FB["FEATURE BRANCH"]
+            F1["URL Features"]
+            F2["Linguistic Features"]
+            F3["Message-Level Features"]
+        end
+    end
+
+    subgraph S4["4. HYBRID CLASSIFICATION MODEL"]
+        H1["Feature Fusion"]
+        H2["Dense Layer + Dropout"]
+        H3["Sigmoid Binary Classifier"]
+    end
+
+    subgraph S5["5. OUTPUT INTERPRETATION"]
+        O1["Prediction: SAFE or PHISHING"]
+        O2["Phishing Risk Score"]
+        O3["Explainable Result: Important Indicators"]
+    end
+
+    subgraph S6["6. DEPLOYMENT PIPELINE"]
+        DEP1["Cloud REST API (FastAPI / Render)<br/>& Global Edge (Cloudflare Pages)"]
+        DEP2["Optimized TensorFlow Lite Model<br/>(Edge & Offline On-Device Inference)"]
+    end
+
+    D1 --> P1
+    D2 --> P1
+    P1 --> P2
+    P2 --> P3
+    P3 --> P4
+    P4 --> T1
+    P4 --> F1
+    T1 --> T2 --> T3 --> T4 --> T5
+    F1 --> F2 --> F3
+    T5 --> H1
+    F3 --> H1
+    H1 --> H2 --> H3
+    H3 --> O1
+    O1 --> O2
+    O2 --> O3
+    O3 --> DEP1
+    O3 --> DEP2
 ```
-+-----------------------------------------------------------------------------------+
-|                                WEB BROWSER CLIENT                                 |
-|  [ Input Message in Sinhala, Singlish, or English ] -> [ Analyze Phishing Threat ]|
-+-----------------------------------------+-----------------------------------------+
-                                          | HTTP POST /api/v1/predict
-                                          v
-+-----------------------------------------------------------------------------------+
-|                              FASTAPI REST BACKEND                                 |
-|                                                                                   |
-|   1. Text Preprocessing (Unicode NFC, Number-Preserving Token Normalization)      |
-|   2. Sequence Tokenization (Max Length = 120, Vocabulary Size = 8,908)            |
-|   3. Handcrafted Feature Extraction (9 URL and Linguistic Domain Indicators)      |
-|                                                                                   |
-|                                         v                                         |
-|                   +---------------------------------------------+                 |
-|                   |  Trained Keras Model (Multi-Input BiGRU)    |                 |
-|                   |  - Text Branch: Embedding -> BiGRU -> Attn  |                 |
-|                   |  - Feature Branch: StandardScaler -> Dense  |                 |
-|                   |  - Fusion Layer -> Dense MLP -> Sigmoid     |                 |
-|                   +---------------------------------------------+                 |
-|                                         |                                         |
-|   4. Output Generation: Verdict (PHISHING / SAFE), Probability, Risk, Explainability|
-+-----------------------------------------+-----------------------------------------+
-                                          | JSON Response
-                                          v
-+-----------------------------------------------------------------------------------+
-|                           CYBERSECURITY DASHBOARD                                 |
-|   [ Status Badge | Confidence Meter | 9 Feature Matrix | Normalized Sequence ]    |
-+-----------------------------------------------------------------------------------+
+
+```
+=====================================================================================
+                             END-TO-END PIPELINE STAGES
+=====================================================================================
+1. DATA SOURCES
+   [ Primary Dataset: Sri Lankan SMS Survey ] + [ Supplementary Dataset: English SMS ]
+                                     │
+                                     ▼
+2. PREPROCESSING
+   [ Dataset Filtering ] -> [ Unicode NFC ] -> [ Sinhala/Singlish Normalization ] -> [ URL & Token Handling ]
+                                     │
+                  ┌──────────────────┴──────────────────┐
+                  ▼                                     ▼
+3. FEATURE PROCESSING (Text Branch)     3. FEATURE PROCESSING (Feature Branch)
+   [ Tokenization & Sequence Encoding ]   [ URL Features (Count, Length, Subdomains) ]
+   [ Embedding Layer (8909 -> 128) ]     [ Linguistic Features (Digits, Punctuation) ]
+   [ Bidirectional GRU (64 units) ]      [ Message-Level Features (Suspicious Words) ]
+   [ Attention Mechanism Layer ]                        │
+                  │                                     │
+                  └──────────────────┬──────────────────┘
+                                     ▼
+4. HYBRID CLASSIFICATION MODEL
+   [ Feature Fusion Concatenation ] -> [ Dense Layers (64, 32) + Dropout ] -> [ Sigmoid Classifier ]
+                                     │
+                                     ▼
+5. OUTPUT INTERPRETATION
+   [ Prediction: SAFE / PHISHING ] -> [ Risk Score % ] -> [ Explainable Feature Breakdown ]
+                                     │
+                                     ▼
+6. DEPLOYMENT PIPELINE
+   [ Cloud REST API (FastAPI / Render) + Web UI (Cloudflare Pages) ]
+   [ Optimized TensorFlow Lite Export (Edge / Offline Inference) ]
+=====================================================================================
 ```
 
 ---
@@ -416,9 +486,10 @@ Content-Type: application/json
 
 ---
 
-## Author and Attribution
+## Authors and Attribution
 
-- **Author**: Vikum Kodikara
+- **Vikum Kodikara** — Lead Researcher & Developer
+- **Ravindhu Adheesha** — Research Contributor
 - **Academic Research Topic**: NLP-Based Detection of Phishing Attacks in Multilingual Sinhala and Singlish Mobile Messages
 - **Institution**: University Research Project, Sri Lanka
 - **License**: MIT License
