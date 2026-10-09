@@ -74,7 +74,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 app.include_router(router)
 
 
-@app.get("/", summary="API Root", tags=["Root"])
+@app.api_route("/", methods=["GET", "HEAD"], summary="API Root", tags=["Root"])
 async def root() -> dict[str, str]:
     """Root endpoint welcoming users and directing to documentation."""
     return {
