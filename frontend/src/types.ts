@@ -39,6 +39,22 @@ export interface SampleMessage {
   description: string;
 }
 
+export interface AnalysisHistoryItem {
+  id: string;
+  timestamp: string;
+  message: string;
+  result: PredictResponse;
+}
+
+export interface BenchmarkRunResult {
+  sampleId: string;
+  isLoading: boolean;
+  result?: PredictResponse;
+  error?: string;
+  latencyMs?: number;
+  matchesExpected?: boolean;
+}
+
 export interface ModelInfoResponse {
   model_name: string;
   architecture: string;
@@ -89,3 +105,11 @@ export interface ModelInfoResponse {
   };
   disclaimer: string;
 }
+
+export type NavigationTab = 
+  | 'detector'
+  | 'benchmarks'
+  | 'insights'
+  | 'architecture'
+  | 'security'
+  | 'about';
