@@ -8,7 +8,7 @@
 ## Public Repository and Live Deployments
 
 - **Public GitHub Repository**: [https://github.com/vikumkodikara/sinhala-singlish-phishing-detection](https://github.com/vikumkodikara/sinhala-singlish-phishing-detection)
-- **Live Web Application (Frontend)**: [https://sinhala-singlish-phishing-detection.pages.dev](https://sinhala-singlish-phishing-detection.pages.dev)
+- **Live Web Application (Frontend)**: [https://sinhala-singlish-phishing-detection.vikumkodikara123.workers.dev](https://sinhala-singlish-phishing-detection.vikumkodikara123.workers.dev)
 - **Live REST API (Backend)**: [https://sinhala-singlish-phishing-detection.onrender.com](https://sinhala-singlish-phishing-detection.onrender.com)
 - **Interactive API Documentation (Swagger)**: [https://sinhala-singlish-phishing-detection.onrender.com/docs](https://sinhala-singlish-phishing-detection.onrender.com/docs)
 
